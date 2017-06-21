@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name          Enhancements 3.1
+// @name          Enhancements 3.9
 // @namespace     TIQ
 // @require       http://code.jquery.com/jquery-2.1.1.min.js
 // @require       https://raw.githubusercontent.com/ccampbell/mousetrap/master/mousetrap.min.js
@@ -10221,15 +10221,15 @@ cursor: pointer;\
                         // add data-set to dom elements
                         tags.elems.map(function(elem) {
                             elem.dataset.loadRules = utui.data.manage[elem.dataset.id].loadrule;
-                            if (tags.scope[elem.dataset.id]) {elem.dataset.extensions = tags.scope[elem.dataset.id].join(', ');} 
+                            if (tags.scope[elem.dataset.id]) {elem.dataset.extensions = tags.scope[elem.dataset.id].join(', ');}
                             else {elem.dataset.extensions = '';}
                             return elem;
                         });
                         tags.elems.forEach(function(elem) {fastdom.mutate(() => {csm.build_info_container(elem);});});
                     } else if (curr_tab === "customizations") {
-                        
+
                         let extensions = (function() {return {elems: jQuery('.customize_container').toArray(),scope: csm.build_scope(curr_tab)}})();
-                        
+
                         extensions.elems.forEach(function(elem, i) {
                             if (extensions.scope[elem.dataset.id]) {
                                 elem.dataset.scope = extensions.scope[elem.dataset.id].join(',');
