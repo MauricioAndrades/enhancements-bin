@@ -1957,8 +1957,8 @@ return function(path){return baseInvoke(object,path,args)}});function mixin(obje
       },
       events: {
         visible: function(event, api) {
-//           api.set("hide.target", $(event.originalEvent.target).closest(".manage_container").get(0));
-//           api.set("hide.event", "mouseleave");
+           api.set("hide.target", $(event.originalEvent.target).closest(".manage_container").get(0));
+           api.set("hide.event", "mouseleave");
           var enter = function(event) {
             var api = this;
             console.log(["enter", event, api]);
@@ -2004,7 +2004,7 @@ return function(path){return baseInvoke(object,path,args)}});function mixin(obje
         }
       },
       hide: {
-        event: false,
+        event: 'mouseleave',
         inactive: false,
         fixed: true,
         delay: 0
