@@ -1918,7 +1918,9 @@ return function(path){return baseInvoke(object,path,args)}});function mixin(obje
       content: {
         button: true,
         text: function(event, api) {
-          var text = $(this).find(".lr").get(0).textContent;
+          var text;
+          var elem = $(this).find(".lr").get(0);
+          if(elem) text = text.textContent;
           text = text.split(",").map(function(str) {
             var obj = {};
             obj.id = utui.data.loadrules[str.trim()].id;
