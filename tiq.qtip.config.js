@@ -2084,8 +2084,6 @@ if(typeof e!="function")throw new TypeError("Expected a function");return n=r(n)
             },
             events: {
                 visible: function(event, api) {
-                    api.set("hide.target", $(event.originalEvent.target).closest(".manage_container").get(0));
-                    api.set("hide.event", "mouseleave");
                     var enter = function(event) {
                             var api = this;
                             console.log(["enter", event, api]);
