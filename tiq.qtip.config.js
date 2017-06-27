@@ -35,64 +35,157 @@ var init_qtip_css_mod = function(config) {
 
 function parseHTML(str) {var tmp = document.implementation.createHTMLDocument();tmp.body.innerHTML = str;return tmp.body.children[0];}
 
-var init_qtip_config = function(config) {
-  var qtip_config = {
-    content: {
-      button: true,
-      text: function(event, api) {
-        var text = $(this).find(".lr").get(0).textContent;
-        text = text.split(",").map(function(str) {
-          var t = utui.data.loadrules[str.trim()].id + ":" + utui.data.loadrules[str.trim()].title;
-          return t;
-        });
-        var ul = document.createElement("ul");
-        ul.classList.add("tip");
+    var init_qtip_config = function(config) {
+        var qtip_config = {
+            content: {
+                button: true,
+                text: function(event, api) {
+                    var ul = document.createElement("ul");
+                    ul.classList.add("tip");
 
-        function build_template(text) {
-          var li = ['<li><i class="icon-book mapping-icon"></i>' + " " + text + "</li>"].join("");
-          return parseHTML(li);
+                    function parse_loadrules(element) {
+                        var text;
+                        if (element) text = element.textContent;
+                        text = text.split(',').map(function(string) {
+                            var obj = {};
+                            obj.id = utui.data.loadrules[string.trim()].id;
+                            obj.text = obj.id + ":" + utui.data.loadrules[string.trim()].title;
+                            return obj;
+                        })
+
+                        function build_template(data) {
+                            var li_text = ['<li style="font-size: 11px;"><i class="icon-book mapping-icon" data-id=' + data.id + "></i>" + " " + data.text + "</li>"].join("");
+                            var li = parseHTML(li_text);
+                            li.dataset.id = data.id;
+                            li.firstElementChild.onclick = function() {
+                                utui.util.pubsub.publish(utui.constants.loadrules.FOCUSED, "loadrules_content", "loadrules", this.dataset.id, ".uidValue")
+                            };
+                            return li
+                        }
+
+                        if (text) {
+                            text.forEach(function(obj) {li = build_template(obj);ul.appendChild(li);});
+                        }
+                    }
+
+                    function parse_extensions(element) {
+                        var text;
+                        if (element) text = element.textContent;
+                        text = text.split(',').map(function(string) {
+                            var obj = {};
+                            obj.id = utui.data.customizations[string.trim()]._id;
+                            obj.text = obj.id + ":" + utui.data.customizations[string.trim()].title;
+                            return obj;
+                        })
+
+                        function build_template(data) {
+                            var li_text = ['<li style="font-size: 11px;"><i class="icon-gear mapping-icon" data-id=' + data.id + "></i>" + " " + data.text + "</li>"].join("");
+                            var li = parseHTML(li_text);
+                            li.dataset.id = data.id;
+                            li.firstElementChild.onclick = function() {
+                                utui.util.pubsub.publish(utui.constants.extensions.FOCUSED,'customize_content', 'customizations', this.dataset.id, '.container_uid');
+                            };
+                            return li
+                        }
+
+                        if (text) {
+                            text.forEach(function(obj) {
+                                debugger;
+                                li = build_template(obj);
+                                if (li) ul.appendChild(li);
+                            });
+                        }
+                    }
+                    var loadrules = $(this).find(".lr").get(0);
+                    if (loadrules) parse_loadrules(loadrules);
+                    var extensions = $(this).find(".ext").get(0);
+                    if (extensions) parse_extensions(extensions);
+                    return ul
+                },
+                title: function(event, api) {
+                    var id = this[0].parentNode.parentNode.parentNode.dataset.id;
+                    var title = id + ": " + utui.data.manage[id].title;
+                    return "<p class='tip-header'>" + title + "</p>"
+                }
+            },
+            style: {
+                classes: "qtip-bootstrap qtip-shadow qtip-mono"
+            },
+            events: {
+                visible: function(event, api) {
+                    api.set("hide.target", $(event.originalEvent.target).closest(".manage_container").get(0));
+                    api.set("hide.event", "mouseleave");
+                    var enter = function(event) {
+                            var api = this;
+                            console.log(["enter", event, api]);
+                            if (!api.debounced_enter) {
+                                api.debounced_enter = 1
+                            }
+                            var otime = event.timeStamp;
+                            api.set("hide.distance", false);
+                            api.set("hide.target", api.tooltip);
+                            api.set("hide.event", false);
+                            if (window.qtip_debug) {
+                                console.count(api.id + ":enter")
+                            }
+                            var leave = function(event) {
+                                    var api = this;
+                                    api.toggle(false);
+                                    api.set("hide.distance", 40);
+                                    if (window.qtip_debug) {
+                                        console.count(api.id + ":leave")
+                                    }
+                                    api.debounced_leave = 1
+                                }
+                                .bind(api);
+                            var debounced_leave = lodash.debounce(leave, 200, {
+                                leading: true,
+                                trailing: false
+                            });
+                            if (!api.debounced_leave) {
+                                $(api.tooltip).on("mouseleave", debounced_leave)
+                            }
+                        }
+                        .bind(api);
+                    var debounced_enter = lodash.debounce(enter, 200, {
+                        leading: true,
+                        trailing: false
+                    });
+                    if (!api.debounced_enter) {
+                        $(api.tooltip).on("mouseenter", debounced_enter);
+                        if (window.qtip_debug) {
+                            console.log(api.id + ":adding")
+                        }
+                    }
+                }
+            },
+            hide: {
+                event: 'mouseleave',
+                inactive: false,
+                fixed: true,
+                delay: 0
+            },
+            show: {
+                event: "mouseenter",
+                effect: true,
+                delay: 0,
+                solo: true
+            },
+            position: {
+                my: "center left",
+                at: "top right",
+                adjust: {
+                    x: 0,
+                    y: 10,
+                    method: "flip"
+                }
+            }
+        };
+        if (config.debug) {
+            qtip_config.hide.event = false
         }
-        text.forEach(function(title) {
-          li = build_template(title);
-          ul.appendChild(li);
-        });
-        return ul;
-      },
-      title: function(event, api) {
-        var id = this[0].parentNode.parentNode.parentNode.dataset.id;
-        var title = id + ": " + utui.data.manage[id].title;
-          // return '<icon class="icon-tag inline"></icon>' + "<p class='tip-header'>" + title + "</p>";
-          return "<p class='tip-header'>" + title + "</p>";
-        }
-      },
-      style: {
-        classes: "qtip-bootstrap qtip-shadow qtip-mono"
-      },
-      hide: {
-        inactive: false,
-        fixed: true,
-        //          delay: 600
-      },
-      show: {
-        effect: function() {
-          $(this).slideDown(100);
-        }
-      },
-      position: {
-        my: 'center left',
-        at: 'center right',
-        adjust: {
-          x: 0,
-          y: 0,
-          method: "flip"
-        }
-      }
-    }
-    if (config.debug) {
-      qtip_config.hide.event = false;
-    }
-    return $("div.container_info").qtip(qtip_config);
-  }
+        return $("div.container_info").qtip(qtip_config)
+    };
   function init(options) {
     init_qtip_js();
     init_qtip_css(options);
