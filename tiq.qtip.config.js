@@ -2058,7 +2058,6 @@ window.qtip_init = (function() {
 
                         if (text) {
                             text.forEach(function(obj) {
-                                debugger;
                                 li = build_template(obj);
                                 if (li) ul.appendChild(li);
                             });
