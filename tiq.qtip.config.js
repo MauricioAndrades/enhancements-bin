@@ -2021,7 +2021,7 @@ if(typeof e!="function")throw new TypeError("Expected a function");return n=r(n)
                         text = text.split(',').map(function(string) {
                             var obj = {};
                             obj.id = utui.data.loadrules[string.trim()].id;
-                            obj.text = obj.id + ":" + utui.data.loadrules[string.trim()].title;
+                            obj.text = obj.id + ": " + utui.data.loadrules[string.trim()].title;
                             return obj;
                         })
 
@@ -2046,7 +2046,7 @@ if(typeof e!="function")throw new TypeError("Expected a function");return n=r(n)
                         text = text.split(',').map(function(string) {
                             var obj = {};
                             obj.id = utui.data.customizations[string.trim()]._id;
-                            obj.text = obj.id + ":" + utui.data.customizations[string.trim()].title;
+                            obj.text = obj.id + ": " + utui.data.customizations[string.trim()].title;
                             return obj;
                         })
 
