@@ -2166,5 +2166,5 @@ if(typeof e!="function")throw new TypeError("Expected a function");return n=r(n)
 })();
 qtip_init({
     force: true,
-    debug: false
+    debug: true
 });
