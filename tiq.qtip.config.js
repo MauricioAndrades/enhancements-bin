@@ -158,12 +158,12 @@ if(typeof e!="function")throw new TypeError("Expected a function");return n=r(n)
                 event: 'mouseleave',
                 inactive: false,
                 fixed: true,
-                delay: 0
+                delay: 120
             },
             show: {
                 event: "mouseenter",
                 effect: true,
-                delay: 0,
+                delay: 200,
                 solo: true
             },
             position: {
