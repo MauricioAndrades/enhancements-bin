@@ -54,6 +54,10 @@ window.qtip_init = (function() {
                             li.firstElementChild.onclick = function() {
                                 $(this).animateCSS('bounceIn');
                                 utui.util.pubsub.publish(utui.constants.loadrules.FOCUSED, "loadrules_content", "loadrules", this.dataset.id, ".uidValue")
+                                setTimeout(function () {
+                                    elem = $('h3[aria-expanded=true]').get(0);
+                                    elem.scrollIntoView();
+                                }, 40)
                             };
                             return li
                         }
@@ -78,9 +82,7 @@ window.qtip_init = (function() {
                             var li = parseHTML(li_text);
                             li.dataset.id = data.id;
                             li.firstElementChild.onclick = function() {
-                                window.requestAnimationFrame(function(){
-                                    $(this).animateCSS('bounceIn');
-                                })
+                                $(this).animateCSS('bounceIn');
                                 utui.util.pubsub.publish(utui.constants.extensions.FOCUSED,'customize_content', 'customizations', this.dataset.id, '.container_uid');
                             };
                             return li
@@ -217,5 +219,6 @@ $(document.body).on('mousedown', '.qtip-focus', function(e) {
     if (e.altKey) {
         api.set('hide.distance', false);
         api.set('hide.event', false);
+        api.set('position.target', [500,70]);
     }
 })
