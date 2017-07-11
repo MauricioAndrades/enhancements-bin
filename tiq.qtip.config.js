@@ -78,7 +78,9 @@ window.qtip_init = (function() {
                             var li = parseHTML(li_text);
                             li.dataset.id = data.id;
                             li.firstElementChild.onclick = function() {
-                                $(this).animateCSS('bounce');
+                                window.requestAnimationFrame(function(){
+                                    $(this).animateCSS('bounceIn');
+                                })
                                 utui.util.pubsub.publish(utui.constants.extensions.FOCUSED,'customize_content', 'customizations', this.dataset.id, '.container_uid');
                             };
                             return li
