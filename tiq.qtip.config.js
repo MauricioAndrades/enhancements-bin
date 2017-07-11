@@ -48,7 +48,7 @@ window.qtip_init = (function() {
                         })
 
                         function build_template(data) {
-                            var li_text = ['<li style="font-size: 11px;"><i class="icon-book mapping-icon" data-id=' + data.id + "></i>" + " " + data.text + "</li>"].join("");
+                            var li_text = ['<li style="font-size: 12px;"><i class="icon-book mapping-icon icon-large" data-id=' + data.id + "></i>" + " " + data.text + "</li>"].join("");
                             var li = parseHTML(li_text);
                             li.dataset.id = data.id;
                             li.firstElementChild.onclick = function() {
@@ -74,11 +74,11 @@ window.qtip_init = (function() {
                         })
 
                         function build_template(data) {
-                            var li_text = ['<li style="font-size: 11px;"><i class="icon-gear mapping-icon" data-id=' + data.id + "></i>" + " " + data.text + "</li>"].join("");
+                            var li_text = ['<li style="font-size: 12px;"><i class="icon-gear mapping-icon icon-large" data-id=' + data.id + "></i>" + " " + data.text + "</li>"].join("");
                             var li = parseHTML(li_text);
                             li.dataset.id = data.id;
                             li.firstElementChild.onclick = function() {
-                                $(this).animateCSS('bounceIn');
+                                $(this).animateCSS('bounce');
                                 utui.util.pubsub.publish(utui.constants.extensions.FOCUSED,'customize_content', 'customizations', this.dataset.id, '.container_uid');
                             };
                             return li
@@ -116,16 +116,17 @@ window.qtip_init = (function() {
                             api.set("hide.distance", false);
                             api.set("hide.target", api.tooltip);
                             api.set("hide.event", false);
-                            if (window.qtip_debug) {
+                            if (config.debug) {
                                 console.log(["enter", event, api]);
                                 console.log(config);
                                 console.count(api.id + ":enter")
                             }
                             var leave = function(event) {
                                     var api = this;
+                                    if (api.options.hide.event === false) return;
                                     api.toggle(false);
                                     api.set("hide.distance", 40);
-                                    if (window.qtip_debug) {
+                                    if (config.debug) {
                                         console.count(api.id + ":leave")
                                     }
                                     api.debounced_leave = 1
@@ -207,4 +208,12 @@ window.qtip_init = (function() {
     return init;
 })();
 
-qtip_init({force: false,debug: false});
+qtip_init({force: true,debug: true});
+
+$(document.body).on('mousedown', '.qtip-focus', function(e) {
+    var api = $(this).qtip();
+    if (e.altKey) {
+        api.set('hide.distance', false);
+        api.set('hide.event', false);
+    }
+})
