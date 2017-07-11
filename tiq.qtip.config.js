@@ -28,6 +28,7 @@ window.qtip_init = (function() {
         stylesheet.sheet.addRule(".qtip-title", "margin-right: 20px;");
         stylesheet.sheet.addRule("ul.tip", "padding-left: 0px !important; list-style-type:none;");
         stylesheet.sheet.addRule("p.tip-header", "padding-left: 0px !important; height: 20px; display: inline-block; margin: 1px; font-weight: bolder; font-size: 13px")
+        stylesheet.sheet.addRule(".qtip-min", "max-height: 36px !important; overflow: hidden;");
     };
     var init_qtip_config = function(config) {
         var qtip_config = {
@@ -215,10 +216,16 @@ window.qtip_init = (function() {
 qtip_init({force: true,debug: true});
 
 $(document.body).on('mousedown', '.qtip-focus', function(e) {
-    var api = $(this).qtip();
     if (e.altKey) {
+        debugger;
+        $this = $(this);
+        var api = $this.qtip();
         api.set('hide.distance', false);
         api.set('hide.event', false);
-        api.set('position.target', [500,70]);
+        api.set('position.target', [500, 70]);
+        this.classList.add('qtip-min');
+        $this.on('mouseenter', function(e) {
+            this.classList.remove('qtip-min');
+        })
     }
 })
