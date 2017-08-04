@@ -1,3 +1,4 @@
+window.csm = window.csm || {};
 (function(exp) {
     function getCodeEditor() {
           // javascript beautify
@@ -124,4 +125,4 @@
      exp.addPrettyPrint = addPrettyPrint;
      exp.addSaveExtension = addSaveExtension;
      return exp;
-})({});
+})(csm);
