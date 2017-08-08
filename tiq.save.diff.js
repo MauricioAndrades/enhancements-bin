@@ -42,11 +42,11 @@
         }
       });
 
-      var setImmediate = function(callback) {
-        var args = [...arguments].slice(1);
-        Promise.resolve().then(() => callback(...args));
-        return 0;
-      };
+var setImmediate = function(callback) {
+  var args = [...arguments].slice(1);
+  Promise.resolve().then(() => callback(...args));
+  return 0;
+};
 
       $(".diffleft").css('word-wrap', 'normal');
       window.left_data = "//" + utui.util.safeEscape($(".diff-details-left").text().trim()) + "\n";
@@ -76,10 +76,7 @@
     tmp.body.innerHTML = str;
     return tmp.body.children[0];
   }
-  var footer = document.querySelector('#utui_distro_compare_closeBtn');
   var btn = parseHTML("<button id=\"Save Diff\" class=\"btn btn-info tmui\" style=\"float: right;margin:10px;\">Save Diff</button>");
   footer.parentNode.appendChild(btn);
-  $(btn).on('click', function(e) {
-    saveDiff()
-  })
+  $(btn).on('click', function(e) {csm.saveTemplate()})
 })();
