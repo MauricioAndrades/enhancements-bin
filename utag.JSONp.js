@@ -1,5 +1,4 @@
 utag.JSONp = {
-  url: "",
   getURL: function(url, data) {
     var uri, params;
     if (data && utag.ut.typeOf(data) === "object") {
@@ -40,10 +39,13 @@ utag.JSONp = {
     }
   },
   exec: function(data, mod) {
-    var script = document.createElement('script');
+    var s, script = document.createElement('script');
     script.type = "application/javascript";
     if (mod) {
       script.src = data;
+      s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(script, s);
+      return;
     } else {
       script.innerHTML = data
     }
@@ -57,20 +59,14 @@ utag.JSONp = {
   // we handle this after we resolve the response.
   fetch: function(url, opts, success_cb, error_cb) {
     var JSONp = this;
-    if (JSONp.exec_url === document.URL) {
-      return;
-    }
     var src = JSONp.getURL(url, opts);
     try {
       if (!window.Promise) {
-        var script = document.createElement('script');
-        script.src = "http://datacloud.tealiumiq.com/ti/main/16/i.js?jsonp=utag.ut.getvisitorid";
-        var s = document.getElementsByTagName("script")[0]
-        s.parentNode.insertBefore(script, s);
+        JSONp.exec(src, true);
       }
       JSONp.loadXHR(src).then(function(response) {
         // check if we got it, but it's empty.
-        if (true || response === 'utag.ut.getvisitorid({"tvt":[]});') {
+        if (response === 'utag.ut.getvisitorid({"tvt":[]});') {
           // throw new error to move in catch block.
           // no problem because we're still in a try catch.
           throw new Error("uJSONp: empty response");
