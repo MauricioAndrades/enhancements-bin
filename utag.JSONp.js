@@ -1,4 +1,10 @@
 utag.JSONp = {
+  /**
+   *  builds querystring params
+   *  @method  getURL
+   *  @param   {string}  url   : the base_url of the call.
+   *  @param   {[type]}  data  : an object of querytring params to append.
+   */
   getURL: function(url, data) {
     var uri, params;
     if (data && utag.ut.typeOf(data) === "object") {
@@ -12,6 +18,12 @@ utag.JSONp = {
       }
     }
   },
+  /**
+   *  promised based, async xhr loader.
+   *  @method  loadXHR
+   *  @param   {string}  url  : the url request to make.
+   *  @return  {promise}
+   */
   loadXHR: function(url) {
     return new Promise(load);
 
@@ -38,6 +50,12 @@ utag.JSONp = {
       xhr.send(null);
     }
   },
+  /**
+   *  execute the jsonp code without eval. or make the request if no promises in window.
+   *  @method  exec
+   *  @param   {string}  data  : either the jsonp response or the url string.
+   *  @param   {boolean}  mod  : boolean flag. Chooses execution path.
+   */
   exec: function(data, mod) {
     var s, script = document.createElement('script');
     script.type = "application/javascript";
