@@ -52,7 +52,6 @@ utag.JSONp = {
     document.head.appendChild(script);
     document.head.removeChild(script);
     utag.DB("utagJSONp: executed");
-    this.exec_url = document.URL;
     return;
   },
   // response may fail to deliver data but still resolve properly.
@@ -63,6 +62,7 @@ utag.JSONp = {
     try {
       if (!window.Promise) {
         JSONp.exec(src, true);
+        return;
       }
       JSONp.loadXHR(src).then(function(response) {
         // check if we got it, but it's empty.
@@ -73,6 +73,7 @@ utag.JSONp = {
         } else {
           JSONp.exec(response);
           success_cb.call(response);
+          return;
         }
       }).catch(function(e) {
         return error_cb.call(null, e);
