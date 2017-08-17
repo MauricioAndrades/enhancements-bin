@@ -57,7 +57,7 @@
    *  @return  {method}        : sets the dirty icon in the ui.
    */
    var build_update_view_obj = function(rule) {
-    if (check.type(rule) === "object" && !check.empty_obj(rule)) {
+    if (!check.empty_obj(rule)) {
       return {
         "action": "updated_loadrule",
         "data": {
@@ -176,14 +176,15 @@
       var arr = [];
       var master = {};
       // we track if the input is already being safely handled here
-      var safe_hash = {};
+      var track_state = {};
       /**
        *  handles updating the rules arr. prevents dupelicate keys etc. Mods to fix loadrules should be added here.
        *  @param   {array}  arr    : the loadrule subcondition bin. a subcondition is a single loadrule block or an or block.
        *  @param   {array}  value  : the loadrule statement we want to push into the block. format [['input', remap[key]['input']],['operator', 'defined'],['filter', '']];
        *  @return  {method}        : will selectively update the loadrule block.
        */
-       var push_unique = function(array, value) {
+       var push_unique = function(subcond, value) {
+        var subcond_len = subcond.length;
         var last, len;
         var last_input, last_operator, last_filter;
         var curr_input, curr_operator, curr_filter;
@@ -191,47 +192,46 @@
         curr_operator = value[1][1];
         curr_filter = value[2][1];
         // if it's the first condition, go ahead and push it but track if it's a is defined or is populated check
-        if (array.length === 0) {
-          array.push(value);
+        if (!subcond_len) {
+          subcond.push(value);
           if (curr_operator === "defined" || curr_operator === "populated" || curr_operator === "is_badge_assigned") {
-            safe_hash[curr_input] = curr_operator === "populated" ? 2 : 1;
-            safe_hash[curr_input + "_loc"] = arr.length - 1;
+            track_state[curr_input] = curr_operator === "populated" ? 2 : 1;
+            track_state[curr_input + "_loc"] = subcond_len - 1;
           }
           return;
         }
         // if we're deeper into the block
-        if (array.length >= 1) {
-          len = array.length;
-          last = array[len - 1];
+        if (subcond_len >= 1) {
+          last = subcond[len - 1];
           last_input = last[0][1];
           last_operator = last[1][1];
           last_filter = last[2][1];
         }
-        if (curr_operator === "populated" && typeof(safe_hash[curr_input]) !== "undefined" && safe_hash[curr_input] === 1) {
-          arr[safe_hash[curr_input + "_loc"]][1][1] = "populated";
-          safe_hash[curr_input] = 2;
+        if (curr_operator === "populated" && track_state[curr_input] === 1) {
+          arr[track_state[curr_input + "_loc"]][1][1] = "populated";
+          track_state[curr_input] = 2;
         }
-        if (curr_operator === "populated" && typeof(safe_hash[curr_input]) !== "undefined" && safe_hash[curr_input] === 2) {
+        if (curr_operator === "populated" && typeof(track_state[curr_input]) !== "undefined" && track_state[curr_input] === 2) {
           return;
         }
-        if (curr_operator === "defined" && typeof(safe_hash[curr_input]) !== "undefined") {
+        if (curr_operator === "defined" && typeof(track_state[curr_input]) !== "undefined") {
           return;
         }
-        if (curr_operator === "is_badge_assigned" && typeof(safe_hash[curr_input]) !== "undefined") {
+        if (curr_operator === "is_badge_assigned" && typeof(track_state[curr_input]) !== "undefined") {
           return;
         }
         /** check for dupes and prevent pushing unecessary is_defined checks to a lodrule statement */
         if (curr_input === last_input) {
-          if (curr_operator === "defined" && (last_operator === "defined" || last_operator === "populated" || typeof(safe_hash[curr_input]) !== "undefined")) {
+          if (curr_operator === "defined" && (last_operator === "defined" || last_operator === "populated" || typeof(track_state[curr_input]) !== "undefined")) {
             return;
           }
         }
         /** prevent dupes, update loadrule block and track if we're already check for is_defined */
         if (last_input + last_operator + last_filter !== curr_input + curr_operator + curr_filter) {
-          array.push(value);
+          subcond.push(value);
           if (curr_operator === "defined" || curr_operator === "populated") {
-            safe_hash[curr_input] = curr_operator === "populated" ? 2 : 1;
-            safe_hash[curr_input + "_loc"] = arr.length - 1;
+            track_state[curr_input] = curr_operator === "populated" ? 2 : 1;
+            track_state[curr_input + "_loc"] = arr.length - 1;
           }
         }
       };
