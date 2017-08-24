@@ -1,4 +1,6 @@
-# enhacements-bin
+# Enhancements and Tools:
+
+A place where I put tools to share with the rest of the team.
 
 
 ## utag.detect_browser.js
