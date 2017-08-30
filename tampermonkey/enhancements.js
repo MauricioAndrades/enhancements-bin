@@ -75,14 +75,20 @@
     if (typeof features.updateTitle === "undefined") {features.updateTitle = {}; features.updateTitle.name = "Update TiQ Title"; features.updateTitle.enabled = featuresOptIn; }
     if (typeof features.solutions_fix_conditions === "undefined") {
       features.solutions_fix_conditions = {};
-      features.solutions_fix_conditions.url = "https://cdn.rawgit.com/MauricioAndrades/enhancements-bin/master/tampermonkey/mau5.utui.fix.conditions.js";
+      features.solutions_fix_conditions.url = "https://cdn.rawgit.com/MauricioAndrades/enhancements-bin/master/tampermonkey/solutions.fix_conditions.js";
       features.solutions_fix_conditions.name = "Fix Incomplete Conditions";
       features.solutions_fix_conditions.enabled = featuresOptIn;
     }
     if (typeof features.solutions_extra_info === "undefined") {
       features.solutions_extra_info = {};
-      features.solutions_extra_info.url = "https://cdn.rawgit.com/MauricioAndrades/enhancements-bin/master/tampermonkey/tiq.extra.info.js";
+      features.solutions_extra_info.url = "https://cdn.rawgit.com/MauricioAndrades/enhancements-bin/master/tampermonkey/solutions.extra_info.js";
       features.solutions_extra_info.name = "Solutions: Extra Info";
+      features.solutions_extra_info.enabled = featuresOptIn;
+    }
+    if (typeof features.solutions_code_enh === "undefined") {
+      features.solutions_extra_info = {};
+      features.solutions_extra_info.url = "https://cdn.rawgit.com/MauricioAndrades/enhancements-bin/master/tampermonkey/solutions.code_enh.js";
+      features.solutions_extra_info.name = "Solutions: Code Enh";
       features.solutions_extra_info.enabled = featuresOptIn;
     }
 
