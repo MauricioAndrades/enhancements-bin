@@ -30,7 +30,7 @@
     sol.minify();
   }
   pubsub.subscribe('sol.load', sol.load_code_enh, sol);
-  pubsub.register(triggers.profile.LOADING_COMPLETE, function() {
+  pubsub.subscribe(triggers.profile.LOADING_COMPLETE, function() {
     window.requestIdleCallback(function(){
       utui.util.pubsub.publish('sol.load');
     })
