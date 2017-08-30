@@ -302,7 +302,7 @@
     })
   }
   // loadblock
-  utui.util.pubsub.subscribe(utui.constants.profile.LOADED, create_button);
+  return utui.util.pubsub.subscribe(utui.constants.profile.LOADED, create_button);
 })();
 
 

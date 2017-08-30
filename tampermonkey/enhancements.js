@@ -86,10 +86,10 @@
       features.solutions_extra_info.enabled = featuresOptIn;
     }
     if (typeof features.solutions_code_enh === "undefined") {
-      features.solutions_extra_info = {};
-      features.solutions_extra_info.url = "https://cdn.rawgit.com/MauricioAndrades/enhancements-bin/master/tampermonkey/solutions.code_enh.js";
-      features.solutions_extra_info.name = "Solutions: Code Enh";
-      features.solutions_extra_info.enabled = featuresOptIn;
+      features.solutions_code_enh = {};
+      features.solutions_code_enh.url = "https://cdn.rawgit.com/MauricioAndrades/enhancements-bin/master/tampermonkey/solutions.code_enh.js";
+      features.solutions_code_enh.name = "Solutions: Code Enh";
+      features.solutions_code_enh.enabled = featuresOptIn;
     }
 
     localStorage.setItem("tiq_features", JSON.stringify(features));
@@ -182,14 +182,6 @@
         }
         if (features.updateTitle.enabled) {
           updateTiQTitle();
-        }
-        if (features.solutions_extra_info.enabled) {
-          try {
-            extra_info();
-          } catch (e) {}
-        }
-        if (features.prettyPrint.enabled) {
-          load_pretty_print = 1;
         }
       });
       console.log("Listener for Profile Load Event Loaded");

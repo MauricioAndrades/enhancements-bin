@@ -25,5 +25,9 @@ function extra_info() {
         if (!csm.checkbox_manage) {csm.create_checkbox.tags();}
         if (!csm.checkbox_customizations) {csm.create_checkbox.customizations();}
         csm.add_restore_callback();
+        var load_extra_info = function(){return extra_info();}
+        return utui.util.pubsub.subscribe(utui.constants.profile.LOADED, load_extra_info);
     })();
 }
+
+
