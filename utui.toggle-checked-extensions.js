@@ -21,9 +21,7 @@ function toggle_checked_extensions(state) {
     }
 
     function get_extension_from_id(extension_id) {
-        if (!extension_id) {
-            return null;
-        }
+        if (!extension_id) {return null;}
         var selector = '#customize_content > div#customizations_' + extension_id;
         var extension = $(selector).get(0);
         return extension ? extension : null;
@@ -77,7 +75,9 @@ function toggle_checked_extensions(state) {
         var selector = '#customize_content > div#customizations_' + extension_id;
         var extension = $(selector).get(0);
         var active_state = $(extension).find('span[class^="container_status"]').attr('class').match(/active|inactive/igm)[0];
-        if (active_state === 'inactive') {can_be_activated = true;}
+        if (active_state === 'inactive') {
+            can_be_activated = true;
+        }
         return can_be_activated;
     }
 

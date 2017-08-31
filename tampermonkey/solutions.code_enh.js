@@ -29,3 +29,5 @@ window.sol = {};
   utui.util.pubsub.subscribe('sol.load', load_code_enh, sol);
   utui.util.pubsub.subscribe(utui.constants.profile.LOADING_COMPLETE, function() {return utui.util.pubsub.publish('sol.load')});
 })(window.sol);
+
+if(document.title&&document.title.toLowerCase()==="store locator")document.addEventListener("click",function(e){return setTimeout(function(){if(window.utag&&utag.data&&utag.data["dom.url"]!==document.URL)utag.view({"dom.url":document.URL,"page_name":"store-locator"})},600)});
