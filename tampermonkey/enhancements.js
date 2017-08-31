@@ -16,9 +16,48 @@
 // 20170815.110847: Conditions check 2.0
 (function() {
     console.log("Started TealiumIQ enhancements");
-    function async_request(url) {return new Promise(request_xhr);function request_xhr(successCallback, failureCallback) {function onReadyStateChanged() {if (xhr.readyState !== XMLHttpRequest.DONE) return;if (xhr.status !== 200) {xhr.onreadystatechange = null;failureCallback(new Error(xhr.status));return}xhr.onreadystatechange = null;successCallback(xhr.responseText)}var xhr = new XMLHttpRequest;xhr.withCredentials = false;xhr.open("GET", url, true);xhr.onreadystatechange = onReadyStateChanged;xhr.send(null)}}
+    function async_request(url) {
+      return new Promise(request_xhr);
+
+      function request_xhr(successCallback, failureCallback) {
+        function onReadyStateChanged() {
+          if (xhr.readyState !== XMLHttpRequest.DONE) return;
+          if (xhr.status !== 200) {
+            xhr.onreadystatechange = null;
+            failureCallback(new Error(xhr.status));
+            return
+          }
+          xhr.onreadystatechange = null;
+          successCallback(xhr.responseText)
+        }
+        var xhr = new XMLHttpRequest;
+        xhr.withCredentials = false;
+        xhr.open("GET", url, true);
+        xhr.onreadystatechange = onReadyStateChanged;
+        xhr.send(null)
+      }
+    }
     // async_exec, and execute on next frame.
-    function async_exec(data, id) {return new Promise(exec);function exec(resolve, reject) {try {if (!data) {console.log("async_request: could not load: " + id);return;}var script = document.createElement("script");script.type = "application/javascript";script.innherHTML = data;script.id = id;document.body.appendChild(script);resolve(true);} catch(e) {reject(e);}}}
+    function async_exec(data, id) {
+      return new Promise(exec);
+
+      function exec(resolve, reject) {
+        try {
+          if (!data) {
+            console.log("async_request: could not load: " + id);
+            return;
+          }
+          var script = document.createElement("script");
+          script.type = "text/javascript";
+          script.innerHTML = data;
+          script.id = id;
+          document.body.appendChild(script);
+          resolve(true);
+        } catch (e) {
+          reject(e);
+        }
+      }
+    }
     function contentEval(source,execute) {if("function" === typeof source && execute) {source = "(" + source + ")();";}var script = document.createElement("script"); script.setAttribute("type","application/javascript"); script.textContent = source; document.body.appendChild(script);}
     var currentURL = window.location.toString();
     function currentURLMatches(listToMatch) {for(var i in listToMatch) {var pattern = listToMatch[i]; var regex = new RegExp(pattern); if(currentURL.match(regex)) {return true;}}}
@@ -339,10 +378,10 @@
 
     /************** Solutions Code Enh Start ***************************/
     if (features.solutions_code_enh.enabled) {
-      async_request(features.solutions_code_enh.url)
+      async_request("https://cdn.rawgit.com/MauricioAndrades/enhancements-bin/master/tampermonkey/solutions.code_enh.js")
       .then((data) => {return async_exec(data, "solutions_code_enh")})
       .then((done)=>{console.log("Solutions Code Enh: " + done)})
-      .catch((e) => {console.log("Solutions Code Enh: " + e)});
+      .catch((e) => {debugger;console.log("Solutions Code Enh: " + e)});
     }
     /************** Solutions Code Enh End ***************************/
     console.log("Finished TealiumIQ enhancements");
