@@ -1,7 +1,7 @@
+var bound_iffe = function(fn, args, ctx) {args = ([]).concat(args);fn.apply(ctx, args);return fn;};
 utui.util.pubsub.subscribe(utui.constants.profile.LOADING_COMPLETE, function() {
-    bound_iffe = function(fn, args, ctx) {args = ([]).concat(args); return fn.apply(ctx, args);};
     // qtip
-    bound_iffe((function() {
+    this.init_qtip_config = bound_iffe((function() {
         // parseHTML
         function parseHTML(str) {var tmp = document.implementation.createHTMLDocument(); tmp.body.innerHTML = str; return tmp.body.children[0];}
         // _lodash debounce and throttle
@@ -45,9 +45,5 @@ utui.util.pubsub.subscribe(utui.constants.profile.LOADING_COMPLETE, function() {
         if (!csm.checkbox_customizations) {csm.create_checkbox.customizations();}
         csm.add_restore_callback();
     }, [], window);
-
-    bound_iffe(function() {
-        return $(document.body).on("mousedown", ".qtip-focus", function(e) {var api = $(this).qtip(); if (e.altKey) {api.set("hide.distance", false); api.set("hide.event", false); api.set("position.target", [500,70]);}});
-    }, null, window);
 });
 
