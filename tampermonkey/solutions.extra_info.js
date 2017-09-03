@@ -681,7 +681,7 @@
         csm.add_restore_callback();
     })();
 };
-    utui.utuil.pubsub.subscribe(utui.constants.profile.LOADING_COMPLETE, function(){
+    utui.util.pubsub.subscribe(utui.constants.profile.LOADING_COMPLETE, function(){
         if (typeof csm !== "undefined" && csm.extra_info) {
             csm.extra_info();
         }
