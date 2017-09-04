@@ -296,13 +296,15 @@
   var add_isDefinedAll=function(){localforage.keys().then(function(data){if(data.length>=10){localforage.removeItem(data[data.length-1])}var curr_date=(new Date).getTime();var label=curr_date+"."+utui.profile.lastAccount+"."+utui.profile.lastProfile+"."+"utui.data";var backup=mod_clone(utui.data);return localforage.setItem(label,backup)}).then(function(){var checked_loadrules=[];$("input[id^=loadrules_bulk_select]").each(function(i,elem){if(elem.checked){checked_loadrules.push(elem.value)}});if(checked_loadrules.length){for(var i=0;i<checked_loadrules.length;i++){if(utui.data.loadrules[checked_loadrules[i]].editable==="true"){rebuild_loadrule(checked_loadrules[i])}}}else{for(var key in utui.data.loadrules){if(utui.data.loadrules.hasOwnProperty(key)&&typeof utui.data.loadrules[key].editable!=="undefined"&&utui.data.loadrules[key].editable==="true"){rebuild_loadrule(key)}}}}).catch(function(err){if(err){console.log(err)}})};
 
   var create_button = function() {
-    return window.requestIdleCallback(function(){
+    return window.requestIdleCallback(function() {
           jQuery('<button id="fixConditions" class="btn btn-info tmui" style="float: left;margin-top:0;margin-left:10px;">Fix Conditions</button>').insertBefore("#loadrulesContainer_headerControls .tab-menu-item.labels_menu_list.labels_select_wrapper");
           jQuery(document.body).on("mousedown","#fixConditions",function(){try{add_isDefinedAll()}catch(e){}});
     })
   }
   // loadblock
-  return utui.util.pubsub.subscribe(utui.constants.profile.LOADED, create_button);
+  if (!sol.fix_conditions_loaded) {
+    return utui.util.pubsub.subscribe("loaded_users", create_button);
+  }
 })();
 
 

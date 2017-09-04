@@ -714,17 +714,17 @@ window.csm = window.csm = {};
 })(window.csm);
 
 if (window.csm && !csm.loaded) {
-    utui.util.pubsub.subscribe('sol_load_extra_info', function load_sol_extra_info() {
+    utui.util.pubsub.subscribe('sol_load.extra_info', function load_sol_extra_info() {
         csm.extra_info();
         csm.loaded = 1;
-        utui.util.pubsub.unsubscribe('sol_load_extra_info');
+        utui.util.pubsub.unsubscribe('sol_load.extra_info');
     }, csm);
     utui.util.pubsub.subscribe('loaded_users', function pubsub_trigger_extra_info() {
         return setTimeout(function() {
             utui.util.pubsub._events.loaded_users.forEach(function(evt,i) {
-                if (evt.func.name === "sol_load_extra_info") utui.util.pubsub._events.loaded_users.splice(i, i);
+                if (evt.func.name === "sol_load.extra_info") utui.util.pubsub._events.loaded_users.splice(i, i);
             })
-            return utui.util.pubsub.publish('sol_load_extra_info');
+            return utui.util.pubsub.publish('sol_load.extra_info');
         }, 500);
     })
 }
