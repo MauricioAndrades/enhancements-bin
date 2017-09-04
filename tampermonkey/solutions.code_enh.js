@@ -7,12 +7,113 @@ window.sol = {};
 })();
   sol.jsb_config = {"indent_size": 2,"indent_char": " ","indent_with_tabs": false,"eol": "\n","end_with_newline": false,"indent_level": 0,"preserve_newlines": true,"max_preserve_newlines": 10,"space_in_paren": false,"space_in_empty_paren": false,"jslint_happy": false,"space_after_anon_function": false,"brace_style": "collapse","break_chained_methods": false,"keep_array_indentation": false,"unescape_strings": false,"wrap_line_length": 0,"e4x": false,"comma_first": false,"operator_position": "before-newline"};
   sol.save_data = function save_data(data, filename) {if (!data) {return;}if (!filename) {var date = new Date; filename = date.getTime().toString() + "." + document.location.href.replace(/\/|:/gim, "-").replace(/---/, ".") + ".txt";}if (typeof data === "object") {data = JSON.stringify(data);}var blob = new Blob([data], {type: "text/json"}),e = document.createEvent("MouseEvents"),a = document.createElement("a"); a.download = filename; a.href = window.URL.createObjectURL(blob); a.dataset.downloadurl = ["text/json", a.download, a.href].join(":"); e.initMouseEvent("click", true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null); a.dispatchEvent(e);};
-  sol.date_format = function() {var date_format = function() {var t = /d{1,4}|m{1,4}|yy(?:yy)?|([HhMsTt])\1?|[LloSZ]|"[^"]*"|'[^']*'/g,e = /(?:[PMCEA][SDP]T|(?:Pacific|Mountain|Central|Eastern|Atlantic) (?:Standard|Daylight|Prevailing) Time|(?:GMT|UTC)(?:[-+]\d{4})?)/g,a = /[^-+\dA-Z]/g,m = function(t,e) {for(t = String(t),e = e || 2; t.length < e;) {t = "0" + t;}return t;}; return function(d,y,r) {var n = date_format; if(1 !== arguments.length || "[object String]" !== Object.prototype.toString.call(d) || /\d/.test(d) || (y = d,d = void 0),d = d ? new Date(d) : new Date,isNaN(d)) {throw SyntaxError("invalid date");}y = String(n.masks[y] || y || n.masks["default"]),"UTC:" === y.slice(0,4) && (y = y.slice(4),r = !0); var s = r ? "getUTC" : "get",i = d[s + "Date"](),o = d[s + "Day"](),M = d[s + "Month"](),u = d[s + "FullYear"](),l = d[s + "Hours"](),T = d[s + "Minutes"](),h = d[s + "Seconds"](),c = d[s + "Milliseconds"](),g = r ? 0 : d.getTimezoneOffset(),D = {d: i,dd: m(i),ddd: n.i18n.dayNames[o],dddd: n.i18n.dayNames[o + 7],m: M + 1,mm: m(M + 1),mmm: n.i18n.monthNames[M],mmmm: n.i18n.monthNames[M + 12],yy: String(u).slice(2),yyyy: u,h: l % 12 || 12,hh: m(l % 12 || 12),H: l,HH: m(l),M: T,MM: m(T),s: h,ss: m(h),l: m(c,3),L: m(c > 99 ? Math.round(c / 10) : c),t: 12 > l ? "a" : "p",tt: 12 > l ? "am" : "pm",T: 12 > l ? "A" : "P",TT: 12 > l ? "AM" : "PM",Z: r ? "UTC" : (String(d).match(e) || [""]).pop().replace(a,""),o: (g > 0 ? "-" : "+") + m(100 * Math.floor(Math.abs(g) / 60) + Math.abs(g) % 60,4),S: ["th","st","nd","rd"][i % 10 > 3 ? 0 : (i % 100 - i % 10 !== 10) * i % 10]}; return y.replace(t,function(t) {return t in D ? D[t] : t.slice(1,t.length - 1);});};}(); date_format.masks = {default: "ddd mmm dd yyyy HH:MM:ss",shortDate: "m/d/yy",mediumDate: "mmm d, yyyy",longDate: "mmmm d, yyyy",fullDate: "dddd, mmmm d, yyyy",shortTime: "h:MM TT",mediumTime: "h:MM:ss TT",longTime: "h:MM:ss TT Z",isoDate: "yyyy-mm-dd",isoTime: "HH:MM:ss",isoDateTime: "yyyy-mm-dd'T'HH:MM:ss",modisoDateTime: "yyyy-mm-ddHMS",isoUtcDateTime: "UTC:yyyy-mm-dd'T'HH:MM:ss'Z'",modDate: "yyyy-mm-dd",modFileDate: "yyyymmdd-HHMMss"},date_format.i18n = {dayNames: ["Sun","Mon","Tue","Wed","Thu","Fri","Sat","Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"],monthNames: ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec","January","February","March","April","May","June","July","August","September","October","November","December"]},Date.prototype.format = function(t,e) {return date_format(this,t,e);}; return date_format;}();
-  sol.get_code_editor = function get_code_editor() {function find_code_editor() {var templates = utui.customizations_template; var container = $("h3.ui-state-active").closest(".customize_container"); var extension_id = container.data().id; var template_id = container.attr("data-template-id"); var template = templates[template_id]; if(template && template.editor) {return template.editor[extension_id];}}var jsb_config = sol.jsb_cofig; var codeEditor = find_code_editor(); if(!codeEditor) {return;}codeEditor.getCode = function() {return this.getValue();}; codeEditor.getJSBeautifulCode = function(code) {code = code || codeEditor.getCode(); return sol.jsb(code,{"indent_size": 2,"indent_char": " ","indent_with_tabs": false,"eol": "\n","end_with_newline": false,"indent_level": 0,"preserve_newlines": false,"max_preserve_newlines": 0,"space_in_paren": false,"space_in_empty_paren": false,"jslint_happy": false,"space_after_anon_function": false,"brace_style": "collapse","break_chained_methods": false,"keep_array_indentation": false,"unescape_strings": false,"wrap_line_length": 0,"e4x": false,"comma_first": false,"operator_position": "before-newline"});}; codeEditor.setJSBeautifulCode = function() {codeEditor.setValue(codeEditor.getJSBeautifulCode());}; codeEditor.getClosureCompiledCode = function(code) {code = code || this.getCode(); if(!code) {return;}function makeAJAXRequest(data) {if(!data) {return;}return $.ajax({url: "https://closure-compiler.appspot.com/compile",type: "POST",async: true,data: {js_code: data,compilation_level: "WHITESPACE_ONLY",output_format: "text",output_info: "compiled_code"},accepts: {"*": "*/*",text: "text/plain",html: "text/html",xml: "application/xml, text/xml",json: "application/json, text/javascript"},cache: true,headers: {"Content-type": "application/x-www-form-urlencoded"}});}var req = makeAJAXRequest(code); req.done(function(data) {return data;}); return req;}; codeEditor.setMinifiedCode = function(code) {if(!code) {code = this.getCode();}var req = this.getClosureCompiledCode(code); req.done(function(data) {codeEditor.setValue(data);});}; return codeEditor;};
+  sol.date_format = function date_format() {var date_format = function() {var t = /d{1,4}|m{1,4}|yy(?:yy)?|([HhMsTt])\1?|[LloSZ]|"[^"]*"|'[^']*'/g,e = /(?:[PMCEA][SDP]T|(?:Pacific|Mountain|Central|Eastern|Atlantic) (?:Standard|Daylight|Prevailing) Time|(?:GMT|UTC)(?:[-+]\d{4})?)/g,a = /[^-+\dA-Z]/g,m = function(t,e) {for(t = String(t),e = e || 2; t.length < e;) {t = "0" + t;}return t;}; return function(d,y,r) {var n = date_format; if(1 !== arguments.length || "[object String]" !== Object.prototype.toString.call(d) || /\d/.test(d) || (y = d,d = void 0),d = d ? new Date(d) : new Date,isNaN(d)) {throw SyntaxError("invalid date");}y = String(n.masks[y] || y || n.masks["default"]),"UTC:" === y.slice(0,4) && (y = y.slice(4),r = !0); var s = r ? "getUTC" : "get",i = d[s + "Date"](),o = d[s + "Day"](),M = d[s + "Month"](),u = d[s + "FullYear"](),l = d[s + "Hours"](),T = d[s + "Minutes"](),h = d[s + "Seconds"](),c = d[s + "Milliseconds"](),g = r ? 0 : d.getTimezoneOffset(),D = {d: i,dd: m(i),ddd: n.i18n.dayNames[o],dddd: n.i18n.dayNames[o + 7],m: M + 1,mm: m(M + 1),mmm: n.i18n.monthNames[M],mmmm: n.i18n.monthNames[M + 12],yy: String(u).slice(2),yyyy: u,h: l % 12 || 12,hh: m(l % 12 || 12),H: l,HH: m(l),M: T,MM: m(T),s: h,ss: m(h),l: m(c,3),L: m(c > 99 ? Math.round(c / 10) : c),t: 12 > l ? "a" : "p",tt: 12 > l ? "am" : "pm",T: 12 > l ? "A" : "P",TT: 12 > l ? "AM" : "PM",Z: r ? "UTC" : (String(d).match(e) || [""]).pop().replace(a,""),o: (g > 0 ? "-" : "+") + m(100 * Math.floor(Math.abs(g) / 60) + Math.abs(g) % 60,4),S: ["th","st","nd","rd"][i % 10 > 3 ? 0 : (i % 100 - i % 10 !== 10) * i % 10]}; return y.replace(t,function(t) {return t in D ? D[t] : t.slice(1,t.length - 1);});};}(); date_format.masks = {default: "ddd mmm dd yyyy HH:MM:ss",shortDate: "m/d/yy",mediumDate: "mmm d, yyyy",longDate: "mmmm d, yyyy",fullDate: "dddd, mmmm d, yyyy",shortTime: "h:MM TT",mediumTime: "h:MM:ss TT",longTime: "h:MM:ss TT Z",isoDate: "yyyy-mm-dd",isoTime: "HH:MM:ss",isoDateTime: "yyyy-mm-dd'T'HH:MM:ss",modisoDateTime: "yyyy-mm-ddHMS",isoUtcDateTime: "UTC:yyyy-mm-dd'T'HH:MM:ss'Z'",modDate: "yyyy-mm-dd",modFileDate: "yyyymmdd-HHMMss"},date_format.i18n = {dayNames: ["Sun","Mon","Tue","Wed","Thu","Fri","Sat","Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"],monthNames: ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec","January","February","March","April","May","June","July","August","September","October","November","December"]},Date.prototype.format = function(t,e) {return date_format(this,t,e);}; return date_format;}();
+  sol.tab_dict = {"tabs_loadrules": "loadrules","tabs_dashboard": "dashboard","tabs_define": "data layer","tabs_customizations": "extensions","tabs_publish": "version","tabs_manage": "tags","null": null};
+  sol.get_current_tab = function get_current_tab() {return sol.tab_dict[String(document.querySelector('div#tabs > ul#tabs_content > li.ui-state-active > a').getAttribute('id'))]};
+  sol.is_current_tab = function is_current_tab(tab_list) {return tab_list.includes(sol.get_current_tab())};
+  sol.find_code_editor = function find_code_editor(type) {
+      if (!sol.is_current_tab('extensions')) return;
+      var templates = utui.customizations_template;
+      var container = $("h3.ui-state-active").closest(".customize_container");
+      if (null === container) return;
+      var extension_data = container.data();
+      if (null === extension_data) return;
+      var extension_id = container.data('id');
+      var template_id = container.attr("data-template-id");
+      if (!template_id) return;
+      var template = templates[template_id];
+      if (template && template.editor) {
+          return template.editor[extension_id];
+      }
+  };
+  sol.get_code_editor = function get_code_editor() {
+      if (!sol.is_current_tab("extensions")) return;
+      var jsb_config = sol.jsb_config;
+      var codeEditor = sol.find_code_editor();
+      if (!codeEditor) {return;}
+      codeEditor.getCode = function() {return this.getValue();};
+      codeEditor.getJSBeautifulCode = function(code) {
+          code = code || codeEditor.getCode();
+          return sol.jsb(code, {
+              "indent_size": 2,
+              "indent_char": " ",
+              "indent_with_tabs": false,
+              "eol": "\n",
+              "end_with_newline": false,
+              "indent_level": 0,
+              "preserve_newlines": false,
+              "max_preserve_newlines": 0,
+              "space_in_paren": false,
+              "space_in_empty_paren": false,
+              "jslint_happy": false,
+              "space_after_anon_function": false,
+              "brace_style": "collapse",
+              "break_chained_methods": false,
+              "keep_array_indentation": false,
+              "unescape_strings": false,
+              "wrap_line_length": 0,
+              "e4x": false,
+              "comma_first": false,
+              "operator_position": "before-newline"
+          });
+      };
+      codeEditor.setJSBeautifulCode = function() {
+          codeEditor.setValue(codeEditor.getJSBeautifulCode());
+      };
+      codeEditor.getClosureCompiledCode = function(code) {
+          code = code || this.getCode();
+          if (!code) {
+              return;
+          }
+
+          function makeAJAXRequest(data) {
+              if (!data) {
+                  return;
+              }
+              return $.ajax({
+                  url: "https://closure-compiler.appspot.com/compile",
+                  type: "POST",
+                  async: true,
+                  data: {
+                      js_code: data,
+                      compilation_level: "WHITESPACE_ONLY",
+                      output_format: "text",
+                      output_info: "compiled_code"
+                  },
+                  accepts: {
+                      "*": "*/*",
+                      text: "text/plain",
+                      html: "text/html",
+                      xml: "application/xml, text/xml",
+                      json: "application/json, text/javascript"
+                  },
+                  cache: true,
+                  headers: {
+                      "Content-type": "application/x-www-form-urlencoded"
+                  }
+              });
+          }
+          var req = makeAJAXRequest(code);
+          req.done(function(data) {
+              return data;
+          });
+          return req;
+      };
+      codeEditor.setMinifiedCode = function(code) {
+          if (!code) {
+              code = this.getCode();
+          }
+          var req = this.getClosureCompiledCode(code);
+          req.done(function(data) {
+              codeEditor.setValue(data);
+          });
+      };
+      return codeEditor;
+  };
   sol.save_tag = function save_tag(data, type) {var id, title, curr_date; data = data || utui.adminlib.editor.getValue(); if (sol.date_format) {curr_date = (sol.date_format("isoDate").replace(/-/gim, "") + "-" + sol.date_format("shortTime")).replace(/ |:/gim, "");}if (type === "tag") {id = $("#manage_content").find(".ui-accordion-content-active").get(0).parentNode.dataset.id; if (id) {title = utui.data.manage[id].title;}} else if (type === "extension") {id = $("h3.ui-state-active").closest(".customize_container").data().id; if (id) {title = utui.data.customizations[id].title;}}var label = curr_date + "." + utui.profile.lastAccount + "." + utui.profile.lastProfile + ".UID:" + id + "." + title + ".js"; sol.save(data, label);};
   sol.pretty_print = function pretty_print() {if(!$("#pp").length) {var classname = "btn tmui"; var buttonText = "pp"; $('<span id="pp" class="' + classname + '"><i class="icon-wrench"></i> ' + buttonText + "</span>").css("float","left").css("margin-left","10px").click(function(e) {code_editor = sol.get_code_editor(); if(code_editor) {code_editor.setJSBeautifulCode();}}).appendTo("#tabs-customizations .config_button_nofloat");}};
   sol.minify = function minify() {if (!$("#cust_sol_min").length) {var classname = "btn tmui"; var buttonText = "min"; $('<span id="cust_sol_min" class="' + classname + '"><i class="icon-wrench"></i> ' + buttonText + "</span>").css("float", "left").css("margin-left", "10px").click(function(e) {code_editor = sol.get_code_editor(); if (code_editor) {code_editor.setMinifiedCode();}}).appendTo("#tabs-customizations .config_button_nofloat");}};
-  sol.save_extension = function() {
+  sol.save_extension = function save_extension() {
     if (!$("#cust_sol_save").length) {
       var classname = "btn tmui";
       var buttonText = "save";
@@ -25,6 +126,28 @@ window.sol = {};
     }).appendTo("#tabs-customizations .config_button_nofloat");
     }
   };
-  var load_code_enh = sol.load_code_enh = function() {this.pretty_print(); this.save_extension(); this.minify();}.bind(sol);
-  utui.util.pubsub.subscribe(utui.constants.profile.LOADING_COMPLETE, load_code_enh, sol);
+  sol.load_code_enh = function load_code_enh() {
+      if (!this.loaded) {
+          this.pretty_print();
+          this.save_extension();
+          this.minify();
+          this.loaded = 1;
+          utui.util.pubsub.unsubscribe('sol_load.code_enh');
+      }
+  };
 })(window.sol);
+
+if (window.sol && !sol.loaded) {
+    utui.util.pubsub.subscribe('loaded_users', function sol_load_code_enh() {
+      utui.util.pubsub._events.loaded_users.forEach(function(evt,i) {
+            if (evt.func.name === "sol_load_code_enh") utui.util.pubsub._events.loaded_users.splice(i, i);
+        })
+        return setTimeout(function() {
+            return utui.util.pubsub.publish('sol_load.code_enh');
+        }, 500);
+    })
+    utui.util.pubsub.subscribe("sol_load.code_enh", sol.load_code_enh, sol);
+}
+
+utui.util.pubsub.publish('sol_load.code_enh')
+
