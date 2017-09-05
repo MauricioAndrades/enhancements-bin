@@ -762,4 +762,4 @@ $(document.body).one("click", function(e) {
   })
 })
 
-utui.util.pubsub.subscribe('users_loaded', csm_init_view_state);
+utui.util.pubsub.subscribe('users_loaded', csm.init_view_state);
