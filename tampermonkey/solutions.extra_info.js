@@ -239,6 +239,7 @@ window.csm = window.csm = {};
             },
             events: {
                 visible: function(event, api) {
+                    csm.current_qtip = api.tooltip[0];
                     var enter = function(event) {
                             var api = this;
                             if (!api.debounced_enter) {
@@ -756,7 +757,7 @@ if (window.csm && !csm.loaded) {
 
 
 $(document.body).one("click", function(e) {
-  $(document).unbind('click', csm.qtip_toggle);
+  $(document).off('click', csm.qtip_toggle);
   return $(document.body).on("click", ".qtip-titlebar", function(e) {
     fastdom.mutate(() => $(this).next().slideToggle('fast'))
   })

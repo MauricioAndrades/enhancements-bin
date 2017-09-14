@@ -1,3 +1,5 @@
+window.sol = window.sol || {};
+
 (function() {
  /*Lodash <https://lodash.com/>Copyright JS Foundation and other contributors <https://js.foundation/>Released under MIT license <https://lodash.com/license>Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>Copyright Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors*/
   (function(){var undefined;var VERSION="4.17.4";var LARGE_ARRAY_SIZE=200;var CORE_ERROR_TEXT="Unsupported core-js use. Try https://npms.io/search?q=ponyfill.",FUNC_ERROR_TEXT="Expected a function";var HASH_UNDEFINED="__lodash_hash_undefined__";var MAX_MEMOIZE_SIZE=500;var PLACEHOLDER="__lodash_placeholder__";var CLONE_DEEP_FLAG=1,CLONE_FLAT_FLAG=2,CLONE_SYMBOLS_FLAG=4;var COMPARE_PARTIAL_FLAG=1,COMPARE_UNORDERED_FLAG=2;var WRAP_BIND_FLAG=1,WRAP_BIND_KEY_FLAG=2,WRAP_CURRY_BOUND_FLAG=4,WRAP_CURRY_FLAG=
@@ -295,15 +297,16 @@
   var rebuild_loadrule = function(id) {var elem, parent, data, elems, keys, cloned, mod_hash = {}; cloned = mod_clone(utui.data.loadrules[id]); data = add_defined(cloned); if (data) {keys = Object.keys(data); if (keys.length) {keys.forEach(function(key, idx) {var update_obj; var updated = false; var value = data[key]; if (check.mod(utui.data.loadrules[id][key], value)) {updated = update_loadrule_value("" + id, key, value); if (updated && !mod_hash[id]) {mod_hash[id] = 1; update_obj = build_update_view_obj(utui.data.loadrules[id]); if (update_obj) {utui.profile.showModifiedTabLabel(update_obj); utui.historyManager.addEvent(update_obj);}}}});}}};
   var add_isDefinedAll=function(){localforage.keys().then(function(data){if(data.length>=10){localforage.removeItem(data[data.length-1])}var curr_date=(new Date).getTime();var label=curr_date+"."+utui.profile.lastAccount+"."+utui.profile.lastProfile+"."+"utui.data";var backup=mod_clone(utui.data);return localforage.setItem(label,backup)}).then(function(){var checked_loadrules=[];$("input[id^=loadrules_bulk_select]").each(function(i,elem){if(elem.checked){checked_loadrules.push(elem.value)}});if(checked_loadrules.length){for(var i=0;i<checked_loadrules.length;i++){if(utui.data.loadrules[checked_loadrules[i]].editable==="true"){rebuild_loadrule(checked_loadrules[i])}}}else{for(var key in utui.data.loadrules){if(utui.data.loadrules.hasOwnProperty(key)&&typeof utui.data.loadrules[key].editable!=="undefined"&&utui.data.loadrules[key].editable==="true"){rebuild_loadrule(key)}}}}).catch(function(err){if(err){console.log(err)}})};
 
-  var create_button = function() {
-    return window.requestIdleCallback(function() {
-          jQuery('<button id="fixConditions" class="btn btn-info tmui" style="float: left;margin-top:0;margin-left:10px;">Fix Conditions</button>').insertBefore("#loadrulesContainer_headerControls .tab-menu-item.labels_menu_list.labels_select_wrapper");
-          jQuery(document.body).on("mousedown","#fixConditions",function(){try{add_isDefinedAll()}catch(e){}});
-    })
+  sol.create_button = function() {
+    if (!document.querySelector("button#fixConditions")) {
+      jQuery('<button id="fixConditions" class="btn btn-info tmui" style="float: left;margin-top:0;margin-left:10px;">Fix Conditions</button>').insertBefore("#loadrulesContainer_headerControls .tab-menu-item.labels_menu_list.labels_select_wrapper");
+      jQuery(document.body).on("mousedown","#fixConditions",function(){try{add_isDefinedAll()}catch(e){}});
+    }
   }
   // loadblock
   if (!sol.fix_conditions_loaded) {
-    return utui.util.pubsub.subscribe("loaded_users", create_button);
+    sol.fix_conditions_loaded = true;
+    return utui.util.pubsub.subscribe("loaded_users", sol.create_button);
   }
 })();
 

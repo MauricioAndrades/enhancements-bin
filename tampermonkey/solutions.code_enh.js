@@ -1,4 +1,4 @@
-window.sol = {};
+window.sol = window.sol || {};
 (function(sol) {
   if (!window.utui) {return;}
 (function() {
@@ -138,6 +138,4 @@ if (window.sol && !sol.loaded) {
         }, 500);
     });
 }
-
-utui.util.pubsub.publish("sol_load.code_enh");
 
