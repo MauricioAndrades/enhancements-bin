@@ -111,7 +111,30 @@
     if(features.saveAs.enabled) {try{console.log("Save As Loading"); $("#global_save").click(function() {console.log("global_save clicked"); var origSaveTitle = $("#profile_legend_revision").text().trim(); var saveTitle = $("#profile_legend_revision").text().trim().replace(/\d{4}\.\d{2}\.\d{2}\.\d{4}/g,"").replace(/\d{4}\/\d{2}\/\d{2}\ \d{2}:\d{2}/g,"").trim(); when(function() {return $("span:contains(Save As)").is(":visible");},function() {$("span:contains(Save As)").click(function() {console.log("Save As clicked"); if(!saveTitle.match(/ -$/)) {saveTitle += " -";}when(function() {return origSaveTitle != $("#savepublish_version_title").val();},function() {$("#savepublish_version_title").val($("#savepublish_version_title").val().replace(/Version/,saveTitle).replace(/(\d{4})\.(\d{2})\.(\d{2})\.(\d{2})(\d{2})/,"$1/$2/$3 $4:$5")); setTimeout(function() {$("#publish_notes").focus();},150);}); $("#checkBtn_dev").not(".publish_connector_connected").click(); $("#checkBtn_qa").not(".publish_connector_connected").click(); $("input[name*=forceFTP]").attr("tabindex",999); $(".ui-button-text:contains(Publish)").attr("tabindex",1);}); $("span:contains(Save As)")[0].click(); $("body").keyup(function(e) {var code = e.keyCode || e.which; if(code == "9" && $(document.activeElement).attr("id") === "savepublish_version_title") {var end = $("#savepublish_version_title").val().indexOf(" -"); $("#savepublish_version_title")[0].setSelectionRange(0,end);}});});}); console.log("Save As Loaded");}catch(e) {console.log("Select Save As Failed: " + e);}}
     /************** Select SaveAs End ***************************/
     /************** No Auto Logout Start ***************************/
-    if(false&&features.autoLogout.enabled){try{console.log("No Auto Logout Loading");setInterval(function(){unsafeWindow.utui.util.setSession()},3e5);var ping_community_interval=setInterval(ping_community,15e5);function ping_community(){if(!window.utag)return;utag.ut.loader({"type":"img","src":"https://community.tealiumiq.com/"})}console.log("No Auto Logout Loaded")}catch(e){console.log("No Auto Logout Failed: "+e)}}
+    if (false && features.autoLogout.enabled) {
+        try {
+            (function() {
+                if(!window.utag) return;
+                console.log("No Auto Logout Loading");
+                setInterval(function() {
+                    unsafeWindow.utui.util.setSession()
+                }, 3e5);
+                var ping_community_interval = setInterval(ping_community, 15e5);
+
+                function ping_community() {
+                    if (!window.utag) return;
+                    utag.ut.loader({
+                        "type": "img",
+                        "src": "https://community.tealiumiq.com/"
+                    })
+                }
+                console.log("No Auto Logout Loaded")
+
+            })();
+        } catch (e) {
+            console.log("No Auto Logout Failed: " + e)
+        }
+    }
     /************** No Auto Logout End ***************************/
     /************** No Permissions Message Start ***************************/
     if(features.checkPermissions.enabled) {try{console.log("No Permissions Message Loading"); function checkForPermissions() {when(function() {return utui.permissions && utui.users && Object.keys(utui.permissions.getUserPermissions()).length > 0;},function() {if(!utui.permissions.canPublishDev()) {displayMessageBanner("You can't publish to DEV. You are probably read only!");}else{$("#messageBannerDiv").remove();}});}console.log("No Permissions Message Loaded");}catch(e) {console.log("No Permissions Message Failed: " + e);}}
@@ -258,13 +281,13 @@
     if(features.updateTitle.enabled) {try{console.log("Update TiQ Title Loading"); function updateTiQTitle() {if(utui.data.settings.account) {document.title = "TiQ - " + utui.data.settings.account;}}console.log("Update TiQ Title Loaded");}catch(e) {console.log("Update TiQ Title Failed: " + e);}}
     /************** Add Enlarge Ids End ***************************/
     /************** Add Condition Check Start ***************************/
-    if (features.solutions_fix_conditions.enabled) {async_request(features.solutions_fix_conditions.url).then((data) => {return async_exec(data, "solutions_fix_conditions")}).then((done) => {console.log('Solutions: Fix Conditions: ' + done)}).catch((e)  =>  {console.log("Solutions: Fix Conditions: " + e)}) }
+    if (features.solutions_fix_conditions.enabled) {async_request("https://cdn.rawgit.com/MauricioAndrades/enhancements-bin/2.0/tampermonkey/solutions.fix_conditions.js").then((data) => {return async_exec(data, "solutions_fix_conditions")}).then((done) => {console.log('Solutions: Fix Conditions: ' + done)}).catch((e)  =>  {console.log("Solutions: Fix Conditions: " + e)}) }
     /************** Add Condition Check End ***************************/
     /************** Solutions Extra Info ***************************/
-    if (features.solutions_extra_info.enabled) {async_request("https://cdn.rawgit.com/MauricioAndrades/enhancements-bin/1.8/tampermonkey/solutions.extra_info.js").then((data) => {return async_exec(data, "solutions_extra_info")}).then((done)=>{console.log("Solutions Extra Info:" + done)}).catch((e) => {console.log("Solutions Extra Info:" + e)}); }
+    if (features.solutions_extra_info.enabled) {async_request("https://cdn.rawgit.com/MauricioAndrades/enhancements-bin/2.0/tampermonkey/solutions.extra_info.js").then((data) => {return async_exec(data, "solutions_extra_info")}).then((done)=>{console.log("Solutions Extra Info:" + done)}).catch((e) => {console.log("Solutions Extra Info:" + e)}); }
     /************** Solutions Extra Info End ***************************/
     /************** Solutions Code Enh Start ***************************/
-    if (features.solutions_code_enh.enabled) {async_request("https://cdn.rawgit.com/MauricioAndrades/enhancements-bin/1.8/tampermonkey/solutions.code_enh.js").then((data) => {return async_exec(data, "solutions_code_enh")}).then((done)=>{console.log("Solutions Code Enh: " + done)}).catch((e) => {console.log("Solutions Code Enh: " + e)}); }
+    if (features.solutions_code_enh.enabled) {async_request("https://cdn.rawgit.com/MauricioAndrades/enhancements-bin/2.0/tampermonkey/solutions.code_enh.js").then((data) => {return async_exec(data, "solutions_code_enh")}).then((done)=>{console.log("Solutions Code Enh: " + done)}).catch((e) => {console.log("Solutions Code Enh: " + e)}); }
     /************** Solutions Code Enh End ***************************/
     console.log("Finished TealiumIQ enhancements");
 })();

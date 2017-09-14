@@ -292,17 +292,130 @@ window.sol = window.sol || {};
   var build_update_view_obj = function(rule) {if(check.type(rule) === "object" && !check.empty_obj(rule)) {return{"action": "updated_loadrule","data": {"id": "" + rule._id,"name": _.unescape(rule.title),"kind": "Loadrule","operation": "updated","container": rule.containerId,"tab_name": "loadrules"}};}return false;};
   var update_loadrule_value = function(id, key, value, container_id, loadrule_container) {function get_selector(id) {return ".loadrules_container[data-id=" + id + "]";}try {var $elem = $(get_selector(id)); if ($elem.length) {container_id = $elem.attr("id"); if (container_id) {loadrule_container = utui.loadrules.containerMap[container_id]; if (loadrule_container && loadrule_container.editable === "true") {utui.automator.getLoadruleById(id)[key] = value; return true;}}} else {return null;}} catch (e) {return null;}};
   var group = function(object) {var result = {}; var cursor, len, prop, idx, char, start, end, bracket, dot; for (var path in object) {if (object.hasOwnProperty(path)) {cursor = result; len = path.length; prop = ""; idx = 0; while (idx < len) {char = path.charAt(idx); if (char === "[") {start = idx + 1; end = path.indexOf("]", start); cursor = cursor[prop] = cursor[prop] || []; prop = path.slice(start, end); idx = end + 1;} else {cursor = cursor[prop] = cursor[prop] || {}; start = char === "." ? idx + 1 : idx; bracket = path.indexOf("[", start); dot = path.indexOf(".", start); if (bracket < 0 && dot < 0) {end = idx = len;} else if (bracket < 0) {end = idx = dot;} else if (dot < 0) {end = idx = bracket;} else {end = idx = bracket < dot ? bracket : dot;}prop = path.slice(start, end);}}cursor[prop] = object[path];}}return result[""];};
-  var add_defined = function(loadrule) {var insert_is_defined = function(remap) {var build_is_defined_pair = function(value) {return [["input", value["input"]], ["operator", "defined"], ["filter", ""]];}; var is_allowed_operator = function(operator) {var excluded_operators = ["defined", "notdefined", "populated", "notpopulated", "is_badge_assigned"]; return !excluded_operators.includes(operator);}; var is_allowed_input = function(input) {return input.match(/^js\.|^cp\.|^meta\.|^js_page\.|^va\.|^qp\.|^channel_|^do_not_track|^previous_page_name/) ? true : false;}; var sub_cond = Object.assign({}, loadrule[key]); var keys = Object.keys(remap); var arr = []; var master = {}; var safe_hash = {}; var push_unique = function(array, value) {var last, len; var last_input, last_operator, last_filter; var curr_input, curr_operator, curr_filter; curr_input = value[0][1]; curr_operator = value[1][1]; curr_filter = value[2][1]; if (array.length === 0) {array.push(value); if (curr_operator === "defined" || curr_operator === "populated" || curr_operator === "is_badge_assigned") {safe_hash[curr_input] = curr_operator === "populated" ? 2 : 1; safe_hash[curr_input + "_loc"] = arr.length - 1;}return;}if (array.length >= 1) {len = array.length; last = array[len - 1]; last_input = last[0][1]; last_operator = last[1][1]; last_filter = last[2][1];}if (curr_operator === "populated" && typeof safe_hash[curr_input] !== "undefined" && safe_hash[curr_input] === 1) {arr[safe_hash[curr_input + "_loc"]][1][1] = "populated"; safe_hash[curr_input] = 2;}if (curr_operator === "populated" && typeof safe_hash[curr_input] !== "undefined" && safe_hash[curr_input] === 2) {return;}if (curr_operator === "defined" && typeof safe_hash[curr_input] !== "undefined") {return;}if (curr_operator === "is_badge_assigned" && typeof safe_hash[curr_input] !== "undefined") {return;}if (curr_input === last_input) {if (curr_operator === "defined" && (last_operator === "defined" || last_operator === "populated" || typeof safe_hash[curr_input] !== "undefined")) {return;}}if (last_input + last_operator + last_filter !== curr_input + curr_operator + curr_filter) {array.push(value); if (curr_operator === "defined" || curr_operator === "populated") {safe_hash[curr_input] = curr_operator === "populated" ? 2 : 1; safe_hash[curr_input + "_loc"] = arr.length - 1;}}}; keys.forEach(function(key, i) {var input = remap[key]["input"]; var operator = remap[key]["operator"]; var filter = remap[key]["filter"]; if (is_allowed_operator(operator) && is_allowed_input(input)) {push_unique(arr, build_is_defined_pair(remap[key])); push_unique(arr, [["input", input], ["operator", operator], ["filter", filter]]);} else {push_unique(arr, [["input", input], ["operator", operator], ["filter", filter]]);}}); for (var i = 0; i < arr.length; i++) {arr[i][0][0] = arr[i][0][0] + "_" + i; arr[i][1][0] = arr[i][1][0] + "_" + i; arr[i][2][0] = arr[i][2][0] + "_" + i; master = Object.assign(master, lodash.fromPairs(arr[i]));}return master;}; var sub_cond, loadrule, sub_cond_remap, sub_cond_redef, loadrule_backup, new_load_rule = {}; if (!loadrule) {return;}for (var key in loadrule) {if (loadrule.hasOwnProperty(key)) {if (!isNaN(parseInt(key))) {new_load_rule[key] = {}; sub_cond = mod_clone(loadrule[key]); if (check.type(sub_cond) === "object" && !check.empty_obj(sub_cond)) {try {sub_cond_remap = group(lodash.mapKeys(sub_cond, function(v, k) {return k.replace(/(\w+)(_)(\d)/, "$3.$1");})); sub_cond_redef = insert_is_defined(sub_cond_remap); new_load_rule[key] = Object.assign(new_load_rule[key], sub_cond_redef);} catch (e) {console.log(e); new_load_rule[key] = loadrule[key];}} else {new_load_rule[key] = loadrule[key];}}}}return new_load_rule;};
+  var add_defined = function(loadrule) {
+    var insert_is_defined = function(remap) {
+      var build_is_defined_pair = function(value) {
+        return [["input", value["input"]], ["operator", "defined"], ["filter", ""]];
+      };
+      var is_allowed_operator = function(operator) {
+        var excluded_operators = ["defined", "notdefined", "populated", "notpopulated", "is_badge_assigned"];
+        return !excluded_operators.includes(operator);
+      };
+      var is_allowed_input = function(input) {
+        if (typeof(input) !== "string") return false;
+        return input.match(/^js\.|^cp\.|^meta\.|^js_page\.|^va\.|^qp\.|^channel_|^do_not_track|^previous_page_name|_pathname/) ? true : false;
+      };
+      var sub_cond = Object.assign({}, loadrule[key]);
+      var keys = Object.keys(remap);
+      var arr = [];
+      var master = {};
+      var safe_hash = {};
+      var push_unique = function(array, value) {
+        var last, len;
+        var last_input, last_operator, last_filter;
+        var curr_input, curr_operator, curr_filter;
+        curr_input = value[0][1];
+        curr_operator = value[1][1];
+        curr_filter = value[2][1];
+        if (array.length === 0) {
+          array.push(value);
+          if (curr_operator === "defined" || curr_operator === "populated" || curr_operator === "is_badge_assigned") {
+            safe_hash[curr_input] = curr_operator === "populated" ? 2 : 1;
+            safe_hash[curr_input + "_loc"] = arr.length - 1;
+          }
+          return;
+        }
+        if (array.length >= 1) {
+          len = array.length;
+          last = array[len - 1];
+          last_input = last[0][1];
+          last_operator = last[1][1];
+          last_filter = last[2][1];
+        }
+        if (curr_operator === "populated" && typeof safe_hash[curr_input] !== "undefined" && safe_hash[curr_input] === 1) {
+          arr[safe_hash[curr_input + "_loc"]][1][1] = "populated";
+          safe_hash[curr_input] = 2;
+        }
+        if (curr_operator === "populated" && typeof safe_hash[curr_input] !== "undefined" && safe_hash[curr_input] === 2) {
+          return;
+        }
+        if (curr_operator === "defined" && typeof safe_hash[curr_input] !== "undefined") {
+          return;
+        }
+        if (curr_operator === "is_badge_assigned" && typeof safe_hash[curr_input] !== "undefined") {
+          return;
+        }
+        if (curr_input === last_input) {
+          if (curr_operator === "defined" && (last_operator === "defined" || last_operator === "populated" || typeof safe_hash[curr_input] !== "undefined")) {
+            return;
+          }
+        }
+        if (last_input + last_operator + last_filter !== curr_input + curr_operator + curr_filter) {
+          array.push(value);
+          if (curr_operator === "defined" || curr_operator === "populated") {
+            safe_hash[curr_input] = curr_operator === "populated" ? 2 : 1;
+            safe_hash[curr_input + "_loc"] = arr.length - 1;
+          }
+        }
+      };
+      keys.forEach(function(key, i) {
+        var input = remap[key]["input"];
+        var operator = remap[key]["operator"];
+        var filter = remap[key]["filter"];
+        if (is_allowed_operator(operator) && is_allowed_input(input)) {
+          push_unique(arr, build_is_defined_pair(remap[key]));
+          push_unique(arr, [["input", input], ["operator", operator], ["filter", filter]]);
+        } else {
+          push_unique(arr, [["input", input], ["operator", operator], ["filter", filter]]);
+        }
+      });
+      for (var i = 0; i < arr.length; i++) {
+        arr[i][0][0] = arr[i][0][0] + "_" + i;
+        arr[i][1][0] = arr[i][1][0] + "_" + i;
+        arr[i][2][0] = arr[i][2][0] + "_" + i;
+        master = Object.assign(master, lodash.fromPairs(arr[i]));
+      }
+      return master;
+    };
+    var sub_cond, loadrule, sub_cond_remap, sub_cond_redef, loadrule_backup, new_load_rule = {};
+    if (!loadrule) {
+      return;
+    }
+    for (var key in loadrule) {
+      if (loadrule.hasOwnProperty(key)) {
+        if (!isNaN(parseInt(key))) {
+          new_load_rule[key] = {};
+          sub_cond = mod_clone(loadrule[key]);
+          if (check.type(sub_cond) === "object" && !check.empty_obj(sub_cond)) {
+            try {
+              sub_cond_remap = group(lodash.mapKeys(sub_cond, function(v, k) {
+                return k.replace(/(\w+)(_)(\d)/, "$3.$1");
+              }));
+              sub_cond_redef = insert_is_defined(sub_cond_remap);
+              new_load_rule[key] = Object.assign(new_load_rule[key], sub_cond_redef);
+            } catch (e) {
+              console.log(e);
+              new_load_rule[key] = loadrule[key];
+            }
+          } else {
+            new_load_rule[key] = loadrule[key];
+          }
+        }
+      }
+    }
+    return new_load_rule;
+  };
   var create_interface_elements = function(rule_entries) {var elements = []; var parent_or, and, or_group, keys; var create_elem = function(type, value) {var lookup = {"and": "LRsANDcondition","or": "LRsORcondition","filter": "LRsCase","input": "LRsSource","operator": "LRsFilter"}; var elem = document.createElement("div"); elem.classList.add(lookup[type]); if (type === "and" || type === "or") {return elem;}elem.textContent = value; return elem;}; for (var key in rule_entries) {if (rule_entries.hasOwnProperty(key)) {parent_or = create_elem("or", null); keys = Object.keys(rule_entries[key]); while (keys.length) {and = create_elem("and", null); or_group = keys.splice(0, 3); or_group.forEach(function(entry, i) {var t = entry.match(/(\w+)_(\d)/)[1]; var v = entry.match(/(\w+)_(\d)/)[0]; and.appendChild(create_elem(t, rule_entries[key][v]));}); parent_or.appendChild(and);}elements.push(parent_or);}}return elements;};
   var rebuild_loadrule = function(id) {var elem, parent, data, elems, keys, cloned, mod_hash = {}; cloned = mod_clone(utui.data.loadrules[id]); data = add_defined(cloned); if (data) {keys = Object.keys(data); if (keys.length) {keys.forEach(function(key, idx) {var update_obj; var updated = false; var value = data[key]; if (check.mod(utui.data.loadrules[id][key], value)) {updated = update_loadrule_value("" + id, key, value); if (updated && !mod_hash[id]) {mod_hash[id] = 1; update_obj = build_update_view_obj(utui.data.loadrules[id]); if (update_obj) {utui.profile.showModifiedTabLabel(update_obj); utui.historyManager.addEvent(update_obj);}}}});}}};
   var add_isDefinedAll=function(){localforage.keys().then(function(data){if(data.length>=10){localforage.removeItem(data[data.length-1])}var curr_date=(new Date).getTime();var label=curr_date+"."+utui.profile.lastAccount+"."+utui.profile.lastProfile+"."+"utui.data";var backup=mod_clone(utui.data);return localforage.setItem(label,backup)}).then(function(){var checked_loadrules=[];$("input[id^=loadrules_bulk_select]").each(function(i,elem){if(elem.checked){checked_loadrules.push(elem.value)}});if(checked_loadrules.length){for(var i=0;i<checked_loadrules.length;i++){if(utui.data.loadrules[checked_loadrules[i]].editable==="true"){rebuild_loadrule(checked_loadrules[i])}}}else{for(var key in utui.data.loadrules){if(utui.data.loadrules.hasOwnProperty(key)&&typeof utui.data.loadrules[key].editable!=="undefined"&&utui.data.loadrules[key].editable==="true"){rebuild_loadrule(key)}}}}).catch(function(err){if(err){console.log(err)}})};
 
   sol.create_button = function() {
-    if (!document.querySelector("button#fixConditions")) {
-      jQuery('<button id="fixConditions" class="btn btn-info tmui" style="float: left;margin-top:0;margin-left:10px;">Fix Conditions</button>').insertBefore("#loadrulesContainer_headerControls .tab-menu-item.labels_menu_list.labels_select_wrapper");
-      jQuery(document.body).on("mousedown","#fixConditions",function(){try{add_isDefinedAll()}catch(e){}});
-    }
+    var elem = document.querySelector("button#fixConditions");
+    if (elem) elem.parentNode.removeChild(elem);
+    jQuery('<button id="fixConditions" class="btn btn-info tmui" style="float: left;margin-top:0;margin-left:10px;">Fix Conditions</button>').insertBefore("#loadrulesContainer_headerControls .tab-menu-item.labels_menu_list.labels_select_wrapper");
+    jQuery(document.body).on("mousedown","#fixConditions",function(){try{add_isDefinedAll()}catch(e){}});
   }
+
   // loadblock
   if (!sol.fix_conditions_loaded) {
     sol.fix_conditions_loaded = true;
