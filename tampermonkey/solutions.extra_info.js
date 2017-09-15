@@ -155,6 +155,7 @@ window.csm = window.csm = {};
         stylesheet.sheet.addRule(".qtip-title", "margin-right: 20px;");
         stylesheet.sheet.addRule("ul.tip", "padding-left: 0px !important; list-style-type:none;");
         stylesheet.sheet.addRule("p.tip-header", "padding-left: 0px !important; height: 20px; display: inline-block; margin: 1px; font-weight: bolder; font-size: 13px")
+        stylesheet.sheet.addRule(".truncate", "width: 400px; white-space: nowrap; overflow: hidden; text-overflow: ellipses");
     };
     var init_qtip_config = function(config) {
         var qtip_config = {
@@ -175,7 +176,7 @@ window.csm = window.csm = {};
                         })
 
                         function build_template(data) {
-                            var li_text = ['<li style="font-size: 12px;"><i class="icon-book mapping-icon icon-large" data-id=' + data.id + "></i>" + " " + data.text + "</li>"].join("");
+                            var li_text = ['<li class="truncate" style="font-size: 12px;"><i class="icon-book mapping-icon icon-large" data-id=' + data.id + "></i>" + " " + data.text + "</li>"].join("");
                             var li = parseHTML(li_text);
                             li.dataset.id = data.id;
                             li.firstElementChild.onclick = function() {
@@ -205,7 +206,7 @@ window.csm = window.csm = {};
                         })
 
                         function build_template(data) {
-                            var li_text = ['<li style="font-size: 12px;"><i class="icon-gear mapping-icon icon-large" data-id=' + data.id + "></i>" + " " + data.text + "</li>"].join("");
+                            var li_text = ['<li class="truncate" style="font-size: 12px;"><i class="icon-gear mapping-icon icon-large" data-id=' + data.id + "></i>" + " " + data.text + "</li>"].join("");
                             var li = parseHTML(li_text);
                             li.dataset.id = data.id;
                             li.firstElementChild.onclick = function() {
@@ -231,7 +232,7 @@ window.csm = window.csm = {};
                 title: function(event, api) {
                     var id = this[0].parentNode.parentNode.parentNode.dataset.id;
                     var title = id + ": " + utui.data.manage[id].title;
-                    return "<p class='tip-header'>" + title + "</p>"
+                    return "<p class='tip-header'><i class='icon-tag icon-large'></i>" + " " + title + "</p>"
                 }
             },
             style: {
