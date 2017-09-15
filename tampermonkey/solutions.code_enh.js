@@ -11,10 +11,43 @@ window.sol = window.sol || {};
   sol.tab_dict = {"tabs_loadrules": "loadrules","tabs_dashboard": "dashboard","tabs_define": "data layer","tabs_customizations": "extensions","tabs_publish": "version","tabs_manage": "tags","null": null};
   sol.get_current_tab = function get_current_tab() {return sol.tab_dict[String(document.querySelector("div#tabs > ul#tabs_content > li.ui-state-active > a").getAttribute("id"))];};
   sol.is_current_tab = function is_current_tab(tab_list) {return tab_list.includes(sol.get_current_tab());};
+  sol.get_expanded_id = function get_expanded_id() {
+    var id = "";
+    if (!sol.is_current_tab('extensions')) return id;
+    var container = jQuery("h3.ui-state-active").closest(".customize_container");
+    if (container) id = container.data('id');
+    return id;
+  }
+
+  sol.get_expanded_utui_data = function(id) {
+      var utui_data = {};
+      id = id || sol.get_expanded_id();
+      if (sol.get_current_tab() === "extensions" && id) {
+          return utui.data.customizations[id];
+      }
+  }
+
+  sol.build_name = function build_name() {
+    var expanded_id, utui_data;
+    var form_title;
+    if (window.sol && sol.is_current_tab('extensions')) {
+      expanded_id = sol.get_expanded_id();
+      if (expanded_id) {
+        utui_data = sol.get_expanded_utui_data(expanded_id);
+        if (utui_data) {
+          form_title = sol.get_expanded_utui_data().title || "";
+          if (form_title) {
+            form_title = form_title.replace(/([^aA-zZ])+/igm, "_").toLowerCase();
+          }
+        }
+        return ([(sol.date_format('isoDate') + '.' + sol.date_format('isoTime')).replace(/-|:/igm, ""), utui.account.getName(), utui.profile.lastProfile, ("ext" + expanded_id), form_title, "js"]).join(".");
+      }
+    }
+  }
   sol.find_code_editor = function find_code_editor(type) {
     if (!sol.is_current_tab("extensions")) {return;}
     var templates = utui.customizations_template;
-    var container = $("h3.ui-state-active").closest(".customize_container");
+    var container = jQuery("h3.ui-state-active").closest(".customize_container");
     if (null === container) {return;}
     var extension_data = container.data();
     if (null === extension_data) {return;}
@@ -36,7 +69,7 @@ window.sol = window.sol || {};
       code = code || codeEditor.getCode();
       return sol.jsb(code, {
         "indent_size": 2,
-        "indent_char": " ",
+        "indent_char": "\u0020",
         "indent_with_tabs": false,
         "eol": "\n",
         "end_with_newline": false,
@@ -112,14 +145,23 @@ window.sol = window.sol || {};
   sol.pretty_print = function pretty_print() {if(!$("#pp").length) {var classname = "btn tmui"; var buttonText = "pp"; $('<span id="pp" class="' + classname + '"><i class="icon-wrench"></i> ' + buttonText + "</span>").css("float","left").css("margin-left","10px").click(function(e) {code_editor = sol.get_code_editor(); if(code_editor) {code_editor.setJSBeautifulCode();}}).appendTo("#tabs-customizations .config_button_nofloat");}};
   sol.minify = function minify() {if (!$("#cust_sol_min").length) {var classname = "btn tmui"; var buttonText = "min"; $('<span id="cust_sol_min" class="' + classname + '"><i class="icon-wrench"></i> ' + buttonText + "</span>").css("float", "left").css("margin-left", "10px").click(function(e) {code_editor = sol.get_code_editor(); if (code_editor) {code_editor.setMinifiedCode();}}).appendTo("#tabs-customizations .config_button_nofloat");}};
   sol.save_extension = function save_extension() {
+    var data, name = "";
     if (!$("#cust_sol_save").length) {
       var classname = "btn tmui";
       var buttonText = "save";
       $('<span id="cust_sol_save" class="' + classname + '"><i class="icon-wrench"></i> ' + buttonText + "</span>").css("float", "left").css("margin-left", "10px").click(function(e) {
         code_editor = sol.get_code_editor();
         if (code_editor) {
-          var data = code_editor.getValue();
-          if (data) {sol.save_data(data, "extension");}
+          try {
+            data = code_editor.getValue();
+            name = sol.build_name();
+            if (data && name) {
+              sol.save_data(data, name)
+            }
+          } catch (e) {
+            data = code_editor.getValue();
+            sol.save_data(data, "extension");
+          }
         }
       }).appendTo("#tabs-customizations .config_button_nofloat");
     }
