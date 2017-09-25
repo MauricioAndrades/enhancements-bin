@@ -2,7 +2,7 @@
  *  Browser Detection via utag.js util.
  *  @method
  *  @param   {obj}   udo     : the datalayer object available in this scope.
- *  @param   {obj}   params  : declare custom export values here. defaults to udo['nav.browser_type'] & dom['nav.browser_version'].
+ *  @param   {obj}   params  : declare custom export values here. defaults to udo['nav.browser_type'] & udo['nav.browser_version'].
  *  @param   {bool}  force   : optional flag to force execute the extension.
  */
 (function(udo, params, force) {
