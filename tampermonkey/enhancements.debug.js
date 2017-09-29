@@ -14,6 +14,7 @@
 // added indexDB backup of utui object, and method to not edit loadrules inherited from libraries.
 // 20170815.110847: Conditions check 2.0
 (function() {
+  debugger;
   console.group("TealiumIQ Enhancements");
   console.log("Started TealiumIQ Enhancements");
 
@@ -22,6 +23,7 @@
   var try_catch = function try_catch(fn, args = [], ctx = null) {try {return fn.apply(ctx, args);} catch (e) {console.log(e);}}
   var async_request = function async_request(url) {return new Promise(request_xhr); function request_xhr(successCallback, failureCallback) {function onReadyStateChanged() {if (xhr.readyState !== XMLHttpRequest.DONE) {return;} if (xhr.status !== 200) {xhr.onreadystatechange = null; failureCallback(new Error(xhr.status)); return;} xhr.onreadystatechange = null; successCallback(xhr.responseText);} var xhr = new XMLHttpRequest; xhr.withCredentials = false; xhr.open("GET", url, true); xhr.onreadystatechange = onReadyStateChanged; xhr.send(null);} }
   var async_exec = function async_exec(data, id) {return new Promise(exec); function exec(resolve, reject) {try {if (!data) {console.log("async_request: could not load: " + id); return;} var script = document.createElement("script"); script.type = "text/javascript"; script.innerHTML = data; script.id = id; document.body.appendChild(script); resolve(true);} catch (e) {reject(e);} } }
+  var kindof = function kindof(d) {var t = Object.prototype.toString.call(d).match(/\s([a-zA-Z]+)/)[1].toLowerCase().replace(/^html|element/gim,""); switch(t) {case"number":return isNaN(d) ? "nan" : "number"; default:return t;}}
   /* end solution */
 
   var currentURL = window.location.toString();
@@ -36,7 +38,6 @@
   jQuery(function($) {var _oldShow = $.fn.show; $.fn.show = function(speed,oldCallback) {return $(this).each(function() {var obj = $(this),newCallback = function() {if($.isFunction(oldCallback)) {oldCallback.apply(obj);}obj.trigger("afterShow");}; obj.trigger("beforeShow"); _oldShow.apply(obj,[speed,newCallback]);});};});
   function displayMessageBanner(message) {$("#messageBannerDiv").remove(); $('<div id="messageBannerDiv"><span id="messageBannerClose">X</span><span id="messageBannerMessage">' + message + "</span></div>").css("background-color","#d9534f").css("position","absolute").css("top","10px").css("width","531px").css("height","30px").css("margin-left","27%").css("border-radius","6px").css("text-align","center").appendTo("#app_header"); $("#messageBannerMessage").css("top","5px").css("color","black").css("position","relative").css("font-size","15px"); $("#messageBannerClose").css("float","left").css("border","1px solid black").css("border-radius","6px").css("cursor","pointer").css("padding","5.5px").css("position","relative").css("font-size","15px").click(function() {$("#messageBannerDiv").remove();}); return true;}
   window.truncate = function(str,len) {if(str.length > len) {str = str.substr(0,len - 3) + "...";}return str;};
-  function kindof(d) {var t = Object.prototype.toString.call(d).match(/\s([a-zA-Z]+)/)[1].toLowerCase().replace(/^html|element/gim,""); switch(t) {case"number":return isNaN(d) ? "nan" : "number"; default:return t;}}
   /************** Cleanup TAPID Start ***************************/
   try {
     console.log("Cleanup TAPID Loading");
@@ -69,8 +70,10 @@
   /************** Cleanup TAPID End ***************************/
   var observerConfig = {attributes: true,childList: true,characterData: true};
   /************** Setup TM Features List Start ***************************/
+  var features;
   (function() {
-      var features = JSON.parse(localStorage.getItem("tiq_features")) || {};
+      debugger;
+      features = JSON.parse(localStorage.getItem("tiq_features")) || {};
       var featuresOptIn = Number(localStorage.getItem("tiq_features_opt_in")) || 1;
       /***** Section to remove old names that are no longer being used *******/
       if (features.quickSwitch) {delete features.quickSwitch;}
@@ -584,4 +587,5 @@ if (features.solutions_extra_info.enabled) {async_request("https://cdn.rawgit.co
 if (features.solutions_code_enh.enabled) {async_request("https://cdn.rawgit.com/MauricioAndrades/enhancements-bin/2.5/tampermonkey/solutions.code_enh.js").then((data) => {return async_exec(data, "solutions_code_enh");}).then((done)=>{console.log("Solutions Code Enh: " + done);}).catch((e) => {console.log("Solutions Code Enh: " + e);}); }
 /************** Solutions Code Enh End ***************************/
 console.log("Finished TealiumIQ enhancements");
+console.groupEnd("TealiumIQ Enhancements");
 })();
