@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name          Enhancements 4.1 min
 // @namespace     TIQ
-// @require       http://code.jquery.com/jquery-2.1.1.min.js
+// @require       https://rawgit.com/MauricioAndrades/enhancements-bin/master/tampermonkey/jquery.debug.js
 // @require       https://raw.githubusercontent.com/ccampbell/mousetrap/master/mousetrap.min.js
 // @require       https://raw.github.com/ccampbell/mousetrap/master/plugins/global-bind/mousetrap-global-bind.min.js
 // @require       https://code.jquery.com/ui/1.11.2/jquery-ui.js
@@ -14,17 +14,20 @@
 // added indexDB backup of utui object, and method to not edit loadrules inherited from libraries.
 // 20170815.110847: Conditions check 2.0
 (function() {
-  debugger;
-  console.group("TealiumIQ Enhancements");
+  console.groupCollapsed("TealiumIQ Enhancements");
   console.log("Started TealiumIQ Enhancements");
 
   /* solutions methods */
   var get = {'tapid_cookie': function tapid_cookie() {return document.cookie.split('; ').filter((elem, i) => {return elem.indexOf('TAPID') > -1}).toString() || [];}}
   var try_catch = function try_catch(fn, args = [], ctx = null) {try {return fn.apply(ctx, args);} catch (e) {console.log(e);}}
   var async_request = function async_request(url) {return new Promise(request_xhr); function request_xhr(successCallback, failureCallback) {function onReadyStateChanged() {if (xhr.readyState !== XMLHttpRequest.DONE) {return;} if (xhr.status !== 200) {xhr.onreadystatechange = null; failureCallback(new Error(xhr.status)); return;} xhr.onreadystatechange = null; successCallback(xhr.responseText);} var xhr = new XMLHttpRequest; xhr.withCredentials = false; xhr.open("GET", url, true); xhr.onreadystatechange = onReadyStateChanged; xhr.send(null);} }
+  var sync_request = function sync_request(params) {if (!params || params.src === "") return;var script = document.createElement("script");script.async = false;script.type = "application/javascript";for (var key in params) {if (params.hasOwnProperty(key)) {script[key] = params[key];}}document.head.appendChild(script);};
   var async_exec = function async_exec(data, id) {return new Promise(exec); function exec(resolve, reject) {try {if (!data) {console.log("async_request: could not load: " + id); return;} var script = document.createElement("script"); script.type = "text/javascript"; script.innerHTML = data; script.id = id; document.body.appendChild(script); resolve(true);} catch (e) {reject(e);} } }
   var kindof = function kindof(d) {var t = Object.prototype.toString.call(d).match(/\s([a-zA-Z]+)/)[1].toLowerCase().replace(/^html|element/gim,""); switch(t) {case"number":return isNaN(d) ? "nan" : "number"; default:return t;}}
+  var cachebust = function cachebust() {return (function() {var rep = /.*\?.*/;var links = document.getElementsByTagName("link");var scripts = document.getElementsByTagName("script");var process_scripts = true;for (let i = 0; i < links.length; i++) {var link = links[i];href = link.hasAttribute("href") ? link.getAttribute("href") : "";if (rep.test(href)) {link.href = href + "&_cb=" + Date.now();} else {link.href = href + "?_cb=" + Date.now();}}if (process_scripts) {for (let i = 0; i < scripts.length; i++) {var script = scripts[i],src = script.hasAttribute("src") ? script.getAttribute("src") : "";if (src && rep.test(src)) {script.src = src + "&_cb=" + Date.now();} else if (src) {script.src = src + "?_cb=" + Date.now();}}}})();};
   /* end solution */
+
+  var features, featuresOptIn;
 
   var currentURL = window.location.toString();
   function contentEval(source,execute) {if("function" === typeof source && execute) {source = "(" + source + ")();";}var script = document.createElement("script"); script.setAttribute("type","application/javascript"); script.textContent = source; document.body.appendChild(script);}
@@ -38,6 +41,7 @@
   jQuery(function($) {var _oldShow = $.fn.show; $.fn.show = function(speed,oldCallback) {return $(this).each(function() {var obj = $(this),newCallback = function() {if($.isFunction(oldCallback)) {oldCallback.apply(obj);}obj.trigger("afterShow");}; obj.trigger("beforeShow"); _oldShow.apply(obj,[speed,newCallback]);});};});
   function displayMessageBanner(message) {$("#messageBannerDiv").remove(); $('<div id="messageBannerDiv"><span id="messageBannerClose">X</span><span id="messageBannerMessage">' + message + "</span></div>").css("background-color","#d9534f").css("position","absolute").css("top","10px").css("width","531px").css("height","30px").css("margin-left","27%").css("border-radius","6px").css("text-align","center").appendTo("#app_header"); $("#messageBannerMessage").css("top","5px").css("color","black").css("position","relative").css("font-size","15px"); $("#messageBannerClose").css("float","left").css("border","1px solid black").css("border-radius","6px").css("cursor","pointer").css("padding","5.5px").css("position","relative").css("font-size","15px").click(function() {$("#messageBannerDiv").remove();}); return true;}
   window.truncate = function(str,len) {if(str.length > len) {str = str.substr(0,len - 3) + "...";}return str;};
+
   /************** Cleanup TAPID Start ***************************/
   try {
     console.log("Cleanup TAPID Loading");
@@ -70,11 +74,9 @@
   /************** Cleanup TAPID End ***************************/
   var observerConfig = {attributes: true,childList: true,characterData: true};
   /************** Setup TM Features List Start ***************************/
-  var features;
   (function() {
-      debugger;
       features = JSON.parse(localStorage.getItem("tiq_features")) || {};
-      var featuresOptIn = Number(localStorage.getItem("tiq_features_opt_in")) || 1;
+      featuresOptIn = Number(localStorage.getItem("tiq_features_opt_in")) || 1;
       /***** Section to remove old names that are no longer being used *******/
       if (features.quickSwitch) {delete features.quickSwitch;}
       if (features.checkStalePermissions) {delete features.checkStalePermissions;}
@@ -121,7 +123,24 @@
     console.log("Update TM Features Loading");
     try {
       (function() {
-        function showManageFeatures(data) {$(".dialog-context-nav").css("max-height","600px"); $("#popup").remove(); var buttons = $('<div><button id="saveFeatures">Save</button><button id="closePopup">Close</button></div>').css("padding-top","15px").css("margin-left","22%"); $('<div id="popup"><h4 id="featuresMessage"></h4><form id="featuresForm"><table><thead><tr><th>Feature</th><th>Enabled?</th></tr></thead><tbody></tbody></table></form></div>').css("position","relative").css("z-index","5001").css("border","1px black solid").css("padding","15px").css("border-radius","6px").css("background","white").append(buttons).insertAfter($("#updateTMFeatures").parent()); $("#featuresForm").css("height","auto"); $("#closePopup").css("cursor","pointer").click(function() {$("#popup").remove();}); $("#saveFeatures").click(function() {saveFeatures();}); $('<li><a href="https://docs.google.com/a/tealium.com/document/d/1yrcJg7inHc5SbaUWVC89Bcm3GvC0gjUJtKfBQKtb7Sw/edit" id="documentTMFeatures" target="_blank">TM Documentation</a></li>').click(function() {window.open("https://docs.google.com/a/tealium.com/document/d/1yrcJg7inHc5SbaUWVC89Bcm3GvC0gjUJtKfBQKtb7Sw/edit","_blank");}).insertAfter("#featuresMessage"); var enabled = featuresOptIn ? "checked" : ""; $('<tr><td>Auto Enable Features</td><td><input type="checkbox" data-feature-name="tiq_features_opt_in" ' + enabled + " /></td></tr>").appendTo("#featuresForm tbody"); Object.keys(data).forEach(function(key) {var checked = data[key].enabled ? "checked" : ""; $("<tr><td>" + data[key].name + '</td><td><input type="checkbox" data-feature-name="' + key + '" ' + checked + " /></td></tr>").appendTo("#featuresForm tbody");});}
+      function showManageFeatures(data) {
+        $(".dialog-context-nav").css("max-height", "600px");
+        $("#popup").remove();
+        var buttons = $('<div><button id="saveFeatures">Save</button><button id="closePopup">Close</button></div>').css("padding-top", "15px").css("margin-left", "22%");
+        $('<div id="popup"><h4 id="featuresMessage"></h4><form id="featuresForm"><table><thead><tr><th>Feature</th><th>Enabled?</th></tr></thead><tbody></tbody></table></form></div>').css("position", "relative").css("z-index", "5001").css("border", "1px black solid").css("padding", "15px").css("border-radius", "6px").css("background", "white").append(buttons).insertAfter($("#updateTMFeatures").parent());
+        $("#featuresForm").css("height", "auto");
+        $("#closePopup").css("cursor", "pointer").click(function() {$("#popup").remove();});
+        $("#saveFeatures").click(function() {saveFeatures();});
+        $('<li><a href="https://docs.google.com/a/tealium.com/document/d/1yrcJg7inHc5SbaUWVC89Bcm3GvC0gjUJtKfBQKtb7Sw/edit" id="documentTMFeatures" target="_blank">TM Documentation</a></li>').click(function() {
+          window.open("https://docs.google.com/a/tealium.com/document/d/1yrcJg7inHc5SbaUWVC89Bcm3GvC0gjUJtKfBQKtb7Sw/edit", "_blank");
+        }).insertAfter("#featuresMessage");
+        var enabled = featuresOptIn ? "checked" : "";
+        $('<tr><td>Auto Enable Features</td><td><input type="checkbox" data-feature-name="tiq_features_opt_in" ' + enabled + " /></td></tr>").appendTo("#featuresForm tbody");
+        Object.keys(data).forEach(function(key) {
+          var checked = data[key].enabled ? "checked" : "";
+          $("<tr><td>" + data[key].name + '</td><td><input type="checkbox" data-feature-name="' + key + '" ' + checked + " /></td></tr>").appendTo("#featuresForm tbody");
+        });
+      }
         function saveFeatures() {console.log("Saving Feature Preferences"); $("#featuresForm tbody tr").each(function() {var checked = $(this).find("td:last input").is(":checked") ? 1 : 0; var featureName = $(this).find("td:last input").attr("data-feature-name"); if(featureName == "tiq_features_opt_in") {featuresOptIn = checked;}else{features[featureName].enabled = checked;}}); localStorage.setItem("tiq_features",JSON.stringify(features)); localStorage.setItem("tiq_features_opt_in",featuresOptIn); console.log(features); $("#featuresMessage").html('Successfully Updated Your Preferences!<br/><br/><span style="color: red;"> You will need to refresh TIQ for updates to take effect.</span>');}
         var myiqObserver = new MutationObserver(function(mutations) {console.log("MutationObserver of the My iQ left navigation"); if(!$("#updateTMFeatures").length) {$('<li class="tmui"><a href="#" id="getGlobalMessage">Show Global Message</a></li>').click(function() {unsafeWindow.__getGlobalMessageAllow = "true"; getGlobalMessage(true);}).insertAfter("#tabs-dashboard .dialog-context-nav li:last"); $('<li class="tmui"><a href="#" id="updateTMFeatures">Enable/Disable TM Features</a></li>').click(function() {showManageFeatures(features);}).insertAfter("#tabs-dashboard .dialog-context-nav li:last");}});
         myiqObserver.observe(document.querySelector("#tabs-dashboard #my_site_context"), observerConfig);
@@ -401,10 +420,12 @@
                 });
               }
             };
-            $(document).on("click", ".manage_container", function(e) {
-              addEditTemplatesToManageScreen();
-              addTagTemplateChangeLogToManageScreen(this);
-            });
+            // better method for adding edit button
+            if (window.utui) {
+              utui.util.pubsub.unsubscribe(utui.constants.tags.ACCORDION_EXPANDED, window.addEditTemplatesToManageScreen);
+              utui.util.pubsub.subscribe(utui.constants.tags.ACCORDION_EXPANDED, window.addEditTemplatesToManageScreen);
+            }
+            $(document).on("click", ".manage_container", function(e) {addTagTemplateChangeLogToManageScreen(this);});
             $(document).on("mousedown", 'span:contains("Save Profile Template")', markTagAsNotSaved);
 
             function markTagAsNotSaved() {

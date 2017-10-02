@@ -749,13 +749,16 @@
       return Sizzle(expr, null, null, elements);
     };
     Sizzle.matchesSelector = function(elem, expr) {
-      if ((elem.ownerDocument || elem) !== document) {
-        setDocument(elem);
-      }
+      var ret;
+      if ((elem.ownerDocument || elem) !== document) {setDocument(elem);}
       expr = expr.replace(rattributeQuotes, "='$1']");
       if (support.matchesSelector && documentIsHTML && (!rbuggyMatches || !rbuggyMatches.test(expr)) && (!rbuggyQSA || !rbuggyQSA.test(expr))) {
         try {
-          var ret = matches.call(elem, expr);
+          if (expr === ":visible") {
+            ret = jQuery.find.call(elem, expr);
+          } else {
+            ret = matches.call(elem, expr);
+          }
           if (ret || support.disconnectedMatch || elem.document && elem.document.nodeType !== 11) {
             return ret;
           }
