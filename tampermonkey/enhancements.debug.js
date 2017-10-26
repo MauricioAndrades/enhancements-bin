@@ -193,7 +193,6 @@
               }
 
               if (window.utui) {utui = window.utui;}
-              debugger;
               return utui && utui.permissions && utui.users && Object.keys(utui.permissions.getUserPermissions()).length > 0;
             }, function() {
               if (!utui.permissions.canPublishDev()) {

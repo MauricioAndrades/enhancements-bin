@@ -2456,6 +2456,7 @@
       }
       if (!(eventHandle = elemData.handle)) {
         eventHandle = elemData.handle = function(e) {
+          debugger;
           return typeof jQuery !== strundefined && jQuery.event.triggered !== e.type ? jQuery.event.dispatch.apply(elem, arguments) : undefined;
         };
       }

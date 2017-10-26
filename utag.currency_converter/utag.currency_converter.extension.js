@@ -387,7 +387,27 @@
           return typeof(b.tm_global_currency_code) === "string" && b.tm_global_currency_code.toUpperCase() === "NZD";
         },
         "australia": function(a, b) {
-          return typeof(b.tm_global_currency_code) === "string" && b.tm_global_currency_code.toUpperCase() === "AUD";
+          return typeof(b.tm_global_$(document.body).on('click', 'a.sel-resultsLink.sel-webLink', function doc_data_handler(e) {
+  function format_key(key) {
+    var result = key.trim().replace(/\u0020/igm, '_').toLowerCase();
+    if (result === 'doctor') {
+      result = 'name';
+    }
+    return result;
+  }
+  function format_value(value) {
+    if (!value) {
+      return "";
+    }
+    return value.trim();
+  }
+  var data = {};
+  $(this).closest('tr').find('td[data-name]').each(function(i, elem) {
+    data['doc.' + format_key(elem.dataset.name)] = format_value(elem.textContent);
+  })
+  console.log(data);
+})
+currency_code) === "string" && b.tm_global_currency_code.toUpperCase() === "AUD";
         },
         "india": function(a, b) {
           return typeof(b.tm_global_currency_code) === "string" && b.tm_global_currency_code.toUpperCase() === "INR";
