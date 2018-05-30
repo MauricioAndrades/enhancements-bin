@@ -751,9 +751,6 @@ if (!csm.loaded) {
     }, csm);
     utui.util.pubsub.subscribe("loaded_users", function pubsub_trigger_extra_info() {
         return setTimeout(function() {
-            utui.util.pubsub._events.loaded_users.forEach(function(evt, i) {
-                if (evt.func.name === "sol_load.extra_info") {utui.util.pubsub._events.loaded_users.splice(i, i);}
-            });
             return utui.util.pubsub.publish("sol_load.extra_info");
         }, 500);
     });
