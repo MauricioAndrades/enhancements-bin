@@ -339,8 +339,6 @@ window.csm = window.csm || {};
 });
     console.save = console.save || function(data,filename) {if(!data) {return;}if(!filename) {var date = new Date; filename = date.getTime().toString() + "." + document.location.href.replace(/\/|:/gim,"-").replace(/---/,".") + ".txt";}if(typeof data === "object") {data = JSON.stringify(data);}var blob = new Blob([data],{type: "text/json"}),e = document.createEvent("MouseEvents"),a = document.createElement("a"); a.download = filename; a.href = window.URL.createObjectURL(blob); a.dataset.downloadurl = ["text/json",a.download,a.href].join(":"); e.initMouseEvent("click",true,false,window,0,0,0,0,0,false,false,false,false,0,null); a.dispatchEvent(e);};
     return (function() {
-        // fastdom
-        !function(t) {function e() {var e = this; e.reads = [],e.writes = [],e.raf = u.bind(t);}function n(t) {t.scheduled || (t.scheduled = !0,t.raf(i.bind(null,t)));}function i(t) {var e,i = t.writes,o = t.reads; try{r(o),r(i);}catch(s) {e = s;}if(t.scheduled = !1,(o.length || i.length) && n(t),e) {if(!t["catch"]) {throw e;}t["catch"](e);}}function r(t) {for(var e; e = t.shift();) {e();}}function o(t,e) {var n = t.indexOf(e); return!!~n && !!t.splice(n,1);}function s(t,e) {for(var n in e) {e.hasOwnProperty(n) && (t[n] = e[n]);}}var u = t.requestAnimationFrame || t.webkitRequestAnimationFrame || t.mozRequestAnimationFrame || t.msRequestAnimationFrame || function(t) {return setTimeout(t,16);}; e.prototype = {constructor: e,measure: function(t,e) {var i = e ? t.bind(e) : t; return this.reads.push(i),n(this),i;},mutate: function(t,e) {var i = e ? t.bind(e) : t; return this.writes.push(i),n(this),i;},clear: function(t) {return o(this.reads,t) || o(this.writes,t);},extend: function(t) {if("object" !== typeof t) {throw new Error("expected object");}var e = Object.create(this); return s(e,t),e.fastdom = this,e.initialize && e.initialize(),e;},catch: null}; var exports = t.fastdom = t.fastdom || new e; "f" == (typeof define)[0] ? define(function() {return exports;}) : "o" == (typeof module)[0] && (module.exports = exports);}("undefined" !== typeof window ? window : this);
 
             csm.prime_css = function() {
                 var elem = document.querySelector("#csm_qtip_css");
@@ -688,10 +686,9 @@ window.csm = window.csm || {};
                         elem.dataset.scope = extensions.scope[elem.dataset.id].join(",");
                         info_container = new csm.ExtensionsInfoContainer(elem.dataset.scope).buildContent();
                         info_container.id = "info" + "_" + elem.dataset.id;
-                        fastdom.mutate(() => {
-                            var anchor = elem.children[0].children[1].children[5];
-                            anchor.parentNode.insertBefore(info_container, anchor);
-                        });
+                        var anchor = elem.children[0].children[1].children[5];
+                        anchor.parentNode.insertBefore(info_container, anchor);
+
                     }
                 });
             }
@@ -732,9 +729,7 @@ window.csm = window.csm || {};
         if (e.originalEvent.path[0].classList.contains("go_tag")) {
             e.stopPropagation();
         }
-        fastdom.mutate(() => {
-            return utui.util.pubsub.publish.apply(utui.util.pubsub, ["focused_tag", "manage_content", "manage", self.dataset.id, ".uidValue"]);
-        });
+        utui.util.pubsub.publish.apply(utui.util.pubsub, ["focused_tag", "manage_content", "manage", self.dataset.id, ".uidValue"]);
     };
     csm.go_tag_init = function() {
         jQuery(document.body).off("click", csm.go_tag_handler);
@@ -750,9 +745,7 @@ if (!csm.loaded) {
         utui.util.pubsub.unsubscribe("sol_load.extra_info");
     }, csm);
     utui.util.pubsub.subscribe("loaded_users", function pubsub_trigger_extra_info() {
-        return setTimeout(function() {
-            return utui.util.pubsub.publish("sol_load.extra_info");
-        }, 500);
+        utui.util.pubsub.publish("sol_load.extra_info");
     });
 }
 
@@ -760,7 +753,7 @@ if (!csm.loaded) {
 $(document.body).one("click", function(e) {
   $(document).off("click", csm.qtip_toggle);
   return $(document.body).on("click", ".qtip-titlebar", function(e) {
-    fastdom.mutate(() => $(this).next().slideToggle("fast"));
+    $(this).next().slideToggle("fast")
   });
 });
 
